@@ -2,12 +2,8 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import NuovaAutoForm from '../../nuova/NuovaAutoForm'
 
+// 1. FORZIAMO LA PAGINA AD ESSERE DINAMICA (Essenziale su Vercel per le rotte con [id])
 export const dynamic = 'force-dynamic'
-
-// 1. Inizializziamo il client di Supabase (Lato Server per Next.js App Router)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 interface ModificaAutoPageProps {
   params: {
@@ -16,14 +12,26 @@ interface ModificaAutoPageProps {
 }
 
 export default async function ModificaAutoPage({ params }: ModificaAutoPageProps) {
-  // 2. Interroghiamo direttamente la tabella 'cars' usando l'ID passato nell'URL
+  // 2. RECUPERO SICURO DELLE VARIABILI (Evita il crash se mancano momentaneamente durante la build)
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+
+  // 3. SE LE VARIABILI SONO VUOTE (A tempo di build), BLOCCHIAMO IL CRASH PRIMA DI CHIAMARE SUPABASE
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return <div className="p-4 text-white text-center">Configurazione in corso...</div>
+  }
+
+  // 4. INIZIALIZZIAMO IL CLIENT DENTRO IL COMPONENTE (Solo quando la pagina viene effettivamente eseguita)
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+  // 5. Interroghiamo la tabella 'cars' usando l'ID passato nell'URL
   const { data: auto, error } = await supabase
     .from('cars')
     .select('*')
     .eq('id', params.id)
-    .single() // Forza Supabase a restituire un oggetto singolo anziché un array
+    .single()
 
-  // 3. Se c'è un errore, se l'auto non esiste o se l'ID è vuoto, manda in 404
+  // Se c'è un errore o l'auto non esiste, manda in 404
   if (error || !auto) {
     notFound()
   }
