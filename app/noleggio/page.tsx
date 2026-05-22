@@ -1,12 +1,33 @@
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import CarCard from '@/components/CarCard'
-import { CARS_NOLEGGIO } from '@/lib/data'
 import { CheckCircle, XCircle, Filter } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 
-export default function NoleggioPage() {
-  const available = CARS_NOLEGGIO.filter(c => c.available)
-  const unavailable = CARS_NOLEGGIO.filter(c => !c.available)
+// Disabilitiamo ogni tipo di cache per il server rendering
+export const dynamic = 'force-dynamic';
+
+// Inizializziamo Supabase con il bypass della cache di Next.js
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    global: {
+      fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+    },
+  }
+)
+
+export default async function NoleggioPage() {
+  // Recuperiamo tutte le auto a noleggio dal database (sia disponibili che non)
+  const { data: cars = [] } = await supabase
+    .from('cars')
+    .select('*')
+    .eq('type', 'noleggio')
+
+  // Filtriamo i dati in tempo reale per le statistiche della barra
+  const available = (cars || []).filter(c => c.available)
+  const unavailable = (cars || []).filter(c => !c.available)
 
   return (
     <>
@@ -27,7 +48,7 @@ export default function NoleggioPage() {
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Servizio Premium</p>
             <h1 className="text-6xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Noleggio Auto</h1>
             <p className="max-w-xl leading-relaxed" style={{color: '#8888aa', lineHeight: 1.9}}>
-              Scegli il veicolo che desideri, per il periodo che preferisci. Contratti trasparenti, 
+              Scegli il veicolo che desideri, per il periodo che preferisci. Contratti trasparenti,
               consegna inclusa e assistenza durante tutto il noleggio.
             </p>
 
@@ -58,7 +79,7 @@ export default function NoleggioPage() {
             <div className="flex items-center justify-between mb-10 p-4 rounded-sm glass"
               style={{border: '1px solid rgba(26,111,212,0.1)'}}>
               <span className="text-sm" style={{color: '#8888aa'}}>
-                <span style={{color: '#1a6fd4', fontWeight: 600}}>{CARS_NOLEGGIO.length}</span> veicoli in flotta
+                <span style={{color: '#1a6fd4', fontWeight: 600}}>{cars?.length || 0}</span> veicoli in flotta
               </span>
               <div className="flex items-center gap-2 text-xs uppercase tracking-widest" style={{color: '#555570', letterSpacing: '0.1em'}}>
                 <Filter size={12} />
@@ -66,11 +87,19 @@ export default function NoleggioPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {CARS_NOLEGGIO.map(car => (
-                <CarCard key={car.id} car={car} type="noleggio" />
-              ))}
-            </div>
+            {cars && cars.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cars.map(car => (
+                  <CarCard key={car.id} car={car} type="noleggio" />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 rounded-sm glass" style={{ border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <p className="text-sm" style={{ color: '#666680' }}>
+                  Nessun veicolo presente nella flotta noleggio attualmente.
+                </p>
+              </div>
+            )}
 
             {/* Terms notice */}
             <div className="mt-16 p-6 rounded-sm" style={{background: 'rgba(26,111,212,0.04)', border: '1px solid rgba(26,111,212,0.12)'}}>

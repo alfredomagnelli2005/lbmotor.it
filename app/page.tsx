@@ -2,12 +2,37 @@ import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import CarCard from '@/components/CarCard'
-import { CARS_NOLEGGIO, CARS_VENDITA, COMPANY_INFO } from '@/lib/data'
+import { COMPANY_INFO } from '@/lib/data' // Rimuovi CARS_NOLEGGIO e CARS_VENDITA
 import { ArrowRight, Star, Shield, Clock, Award, ChevronDown, Phone, Mail } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 
-export default function Home() {
-  const featuredRental = CARS_NOLEGGIO.slice(0, 3)
-  const featuredSale = CARS_VENDITA.slice(0, 3)
+export const dynamic = 'force-dynamic';
+
+// MODIFICA QUI: Forza il fetch di Supabase a non usare la cache di Next.js
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    global: {
+      fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+    },
+  }
+)
+
+export default async function Home() {
+  const { data: featuredRental } = await supabase
+    .from('cars')
+    .select('*')
+    .eq('type', 'noleggio')
+    .eq('available', true)
+    .limit(4)
+
+  const { data: featuredSale } = await supabase
+    .from('cars')
+    .select('*')
+    .eq('type', 'vendita')
+    .eq('available', true)
+    .limit(10)
 
   return (
     <>
@@ -103,28 +128,38 @@ export default function Home() {
         </section>
 
         {/* AUTO IN NOLEGGIO */}
-        <section className="py-24" style={{background: '#08080e'}}>
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-14">
-              <div>
-                <p className="text-xs uppercase tracking-widest mb-3" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Il Nostro Parco Auto</p>
-                <h2 className="text-5xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
-                  Auto in Noleggio
-                </h2>
-              </div>
-              <Link href="/noleggio" className="flex items-center gap-2 mt-6 md:mt-0 text-sm uppercase tracking-widest transition-colors"
-                style={{color: '#1a6fd4', letterSpacing: '0.1em', fontSize: '0.75rem'}}>
-                Vedi tutto <ArrowRight size={16} />
-              </Link>
-            </div>
+                <section className="py-24" style={{background: '#08080e'}}>
+                  <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-14">
+                      <div>
+                        <p className="text-xs uppercase tracking-widest mb-3" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Il Nostro Parco Auto</p>
+                        <h2 className="text-5xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
+                          Auto in Noleggio
+                        </h2>
+                      </div>
+                      <Link href="/noleggio" className="flex items-center gap-2 mt-6 md:mt-0 text-sm uppercase tracking-widest transition-colors"
+                        style={{color: '#1a6fd4', letterSpacing: '0.1em', fontSize: '0.75rem'}}>
+                        Vedi tutto <ArrowRight size={16} />
+                      </Link>
+                    </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredRental.map(car => (
-                <CarCard key={car.id} car={car} type="noleggio" />
-              ))}
-            </div>
-          </div>
-        </section>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {featuredRental && featuredRental.length > 0 ? (
+                        featuredRental.map(car => (
+                          <CarCard key={car.id} car={car} type="noleggio" />
+                        ))
+                      ) : (
+                        <div className="col-span-1 md:col-span-3 text-center py-12 rounded-sm glass"
+                             style={{ border: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(255,255,255,0.01)' }}>
+                          <p className="text-sm" style={{ color: '#666680' }}>
+                            Al momento non ci sono auto disponibili per il noleggio. Torna a trovarci presto!
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                </section>
 
         {/* DIVIDER BANNER */}
         <section className="relative py-24 overflow-hidden">
@@ -151,28 +186,28 @@ export default function Home() {
         </section>
 
         {/* AUTO IN VENDITA */}
-        <section className="py-24" style={{background: '#08080e'}}>
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-14">
-              <div>
-                <p className="text-xs uppercase tracking-widest mb-3" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Acquisto Diretto</p>
-                <h2 className="text-5xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
-                  Auto in Vendita
-                </h2>
-              </div>
-              <Link href="/vendita" className="flex items-center gap-2 mt-6 md:mt-0 text-sm uppercase tracking-widest transition-colors"
-                style={{color: '#1a6fd4', letterSpacing: '0.1em', fontSize: '0.75rem'}}>
-                Vedi tutto <ArrowRight size={16} />
-              </Link>
-            </div>
+                <section className="py-24" style={{background: '#08080e'}}>
+                  <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-14">
+                      <div>
+                        <p className="text-xs uppercase tracking-widest mb-3" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Acquisto Diretto</p>
+                        <h2 className="text-5xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
+                          Auto in Vendita
+                        </h2>
+                      </div>
+                      <Link href="/vendita" className="flex items-center gap-2 mt-6 md:mt-0 text-sm uppercase tracking-widest transition-colors"
+                        style={{color: '#1a6fd4', letterSpacing: '0.1em', fontSize: '0.75rem'}}>
+                        Vedi tutto <ArrowRight size={16} />
+                      </Link>
+                    </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredSale.map(car => (
-                <CarCard key={car.id} car={car} type="vendita" />
-              ))}
-            </div>
-          </div>
-        </section>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {featuredSale?.map(car => (
+                        <CarCard key={car.id} car={car} type="vendita" />
+                      ))}
+                    </div>
+                  </div>
+                </section>
 
         {/* GALLERY SECTION */}
         <section className="py-24" style={{background: '#0c0c16'}}>
