@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import NuovaAutoForm from '../../nuova/NuovaAutoForm'
 
+export const dynamic = 'force-dynamic'
+
 // 1. Inizializziamo il client di Supabase (Lato Server per Next.js App Router)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
