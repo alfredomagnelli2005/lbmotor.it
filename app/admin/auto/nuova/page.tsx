@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
-import { eliminaAuto } from './actions'
 import { Edit2, Trash2, Plus } from 'lucide-react'
 
 // Inizializzazione client lato server per il recupero dati immediato
