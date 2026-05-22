@@ -1,4 +1,3 @@
-import { getAutoById } from '../../actions'
 import NuovaAutoForm from '../../nuova/NuovaAutoForm'
 import { notFound } from 'next/navigation'
 

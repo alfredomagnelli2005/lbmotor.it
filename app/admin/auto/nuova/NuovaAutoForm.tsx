@@ -3,7 +3,6 @@
 import { useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { salvaAuto } from '../actions'
 
 interface NuovaAutoFormProps {
   autoIniziale?: any // Usato se siamo in modalità modifica
