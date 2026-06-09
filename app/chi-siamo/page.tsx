@@ -116,30 +116,31 @@ export default function ChiSiamo() {
           </div>
         </section>
 
-        {/* Team placeholder */}
-        // <section className="py-24" style={{background: '#0c0c16'}}>
-        //   <div className="max-w-7xl mx-auto px-6 text-center">
-        //     <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Le persone</p>
-        //     <h2 className="text-4xl mb-4" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Il Nostro Team</h2>
-        //     <p className="max-w-lg mx-auto mb-16" style={{color: '#8888aa', lineHeight: 1.8}}>
-        //       Professionisti appassionati, pronti ad assisterti con competenza e disponibilità.
-        //     </p>
-        //     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        //       {[
-        //         {name: 'Marco Esposito', role: 'Fondatore & CEO', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80'},
-        //         {name: 'Laura Conti', role: 'Responsabile Noleggio', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80'},
-        //         {name: 'Davide Russo', role: 'Consulente Vendite', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80'},
-        //       ].map(({name, role, img}) => (
-        //         <div key={name} className="p-6 rounded-sm glass text-center" style={{border: '1px solid rgba(255,255,255,0.06)'}}>
-        //           <img src={img} alt={name} className="w-24 h-24 rounded-full mx-auto mb-5 object-cover"
-        //             style={{border: '2px solid rgba(26,111,212,0.3)'}} />
-        //           <h3 className="text-xl mb-1" style={{fontFamily: "'Playfair Display', serif", fontWeight: 600}}>{name}</h3>
-        //           <p className="text-xs uppercase tracking-widest" style={{color: '#1a6fd4', letterSpacing: '0.12em', fontSize: '0.65rem'}}>{role}</p>
-        //         </div>
-        //       ))}
-        //     </div>
-        //   </div>
-        // </section>
+        {/* Team placeholder
+        <section className="py-24" style={{background: '#0c0c16'}}>
+          <div className="max-w-7xl mx-auto px-6 text-center">
+            <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Le persone</p>
+            <h2 className="text-4xl mb-4" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Il Nostro Team</h2>
+            <p className="max-w-lg mx-auto mb-16" style={{color: '#8888aa', lineHeight: 1.8}}>
+              Professionisti appassionati, pronti ad assisterti con competenza e disponibilità.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {name: 'Marco Esposito', role: 'Fondatore & CEO', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80'},
+                {name: 'Laura Conti', role: 'Responsabile Noleggio', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80'},
+                {name: 'Davide Russo', role: 'Consulente Vendite', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80'},
+              ].map(({name, role, img}) => (
+                <div key={name} className="p-6 rounded-sm glass text-center" style={{border: '1px solid rgba(255,255,255,0.06)'}}>
+                  <img src={img} alt={name} className="w-24 h-24 rounded-full mx-auto mb-5 object-cover"
+                    style={{border: '2px solid rgba(26,111,212,0.3)'}} />
+                  <h3 className="text-xl mb-1" style={{fontFamily: "'Playfair Display', serif", fontWeight: 600}}>{name}</h3>
+                  <p className="text-xs uppercase tracking-widest" style={{color: '#1a6fd4', letterSpacing: '0.12em', fontSize: '0.65rem'}}>{role}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        */}
       </main>
       <Footer />
     </>
