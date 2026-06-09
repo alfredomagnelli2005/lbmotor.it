@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Car, Phone, Mail, MapPin, Instagram, Facebook, Linkedin } from 'lucide-react'
 import { COMPANY_INFO } from '@/lib/data'
 
+
 export default function Footer() {
   return (
     <footer style={{background: '#050508', borderTop: '1px solid rgba(26,111,212,0.1)'}}>

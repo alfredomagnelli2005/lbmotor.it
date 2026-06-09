@@ -36,19 +36,6 @@ export interface Car {
   }
 }
 
-// ============================================================
-// TODO: Sostituire con fetch dal database
-// Esempio con MongoDB:
-//   import { MongoClient } from 'mongodb'
-//   const client = new MongoClient(process.env.MONGODB_URI!)
-//   const db = client.db('autoprime')
-//   const cars = await db.collection('cars').find({}).toArray()
-//
-// Esempio con Prisma + PostgreSQL:
-//   import { prisma } from '@/lib/prisma'
-//   const cars = await prisma.car.findMany()
-// ============================================================
-
 export const CARS_VENDITA: Car[] = [
   {
     id: 'v1',
@@ -127,27 +114,22 @@ export const ADMIN_CREDENTIALS = {
   password: 'lbmotors2024', // TODO: hashare con bcrypt nel DB reale
 }
 
-// ============================================================
-// CONFIGURAZIONE PAGAMENTI
-// ============================================================
-// TODO: Integrare Stripe per pagamenti reali
-//   import Stripe from 'stripe'
-//   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-// ============================================================
 export const PAYMENT_CONFIG = {
   depositoPercentuale: 30,  // percentuale acconto
   currency: 'EUR',
 }
-
+export const DEV = {
+  author: 'Alfredo Magnelli',
+}
 // ============================================================
 // CONFIGURAZIONE CONTATTI AZIENDA
 // ============================================================
 export const COMPANY_INFO = {
-  name: 'LB Motors',
-  address: 'Via Roma 123, 00100 Roma (RM)',
-  phone: '+39 06 1234567',
-  whatsapp: '+390612345678',
+  name: 'LB MOTORS DI BORRELLI ALESSANDRO PIO',
+  address: 'Piazza Fausto e Luigi Gullo, 19 (CS)',
+  phone: '+39 351 3016996',
+  whatsapp: '+39 351 3016996',
   email: 'info@lbmotors.it',
-  piva: 'IT12345678901',
+  piva: '04003820786',
   orari: 'Lun–Ven 9:00–19:00 | Sab 9:00–13:00',
 }
