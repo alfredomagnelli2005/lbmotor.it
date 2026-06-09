@@ -60,7 +60,7 @@ export default function Footer() {
           <div>
             <h4 className="text-xs uppercase tracking-widest mb-6 font-semibold" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Servizi</h4>
             <div className="flex flex-col gap-3">
-              {['Noleggio Breve Termine','Noleggio Lungo Termine','Vendita Certificata','Assistenza Clienti','Transfer Aeroportuale','Consegna a Domicilio'].map(s => (
+              {['Noleggio Auto','Vendita Auto','Soccorso Stradale','Assistenza Clienti','Servizio Transfer'].map(s => (
                 <span key={s} className="text-sm" style={{color:'#666680'}}>{s}</span>
               ))}
             </div>

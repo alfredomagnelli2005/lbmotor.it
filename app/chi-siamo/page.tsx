@@ -24,7 +24,7 @@ export default function ChiSiamo() {
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>La Nostra Storia</p>
             <h1 className="text-6xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Chi Siamo</h1>
             <p className="max-w-xl leading-relaxed" style={{color: '#8888aa', lineHeight: 1.9}}>
-              Da oltre 15 anni sinonimo di eccellenza nel settore automobilistico. 
+              Da oltre 3 anni sinonimo di eccellenza nel settore automobilistico.
               Una storia fatta di passione, professionalità e clienti soddisfatti.
             </p>
           </div>
@@ -40,13 +40,13 @@ export default function ChiSiamo() {
                   Più di un semplice noleggio
                 </h2>
                 <p className="leading-relaxed mb-6" style={{color: '#8888aa', lineHeight: 1.9}}>
-                  LB Motors nasce dalla passione per l'automobile e dal desiderio di offrire un servizio che 
-                  vada oltre le aspettative. Non siamo semplicemente un'agenzia di noleggio: siamo partner 
+                  LB Motors nasce dalla passione per l'automobile e dal desiderio di offrire un servizio che
+                  vada oltre le aspettative. Non siamo semplicemente un'agenzia di noleggio: siamo partner
                   affidabili per ogni tua esigenza di mobilità.
                 </p>
                 <p className="leading-relaxed mb-8" style={{color: '#8888aa', lineHeight: 1.9}}>
-                  Ogni veicolo della nostra flotta è selezionato con cura, mantenuto in perfetta efficienza 
-                  e consegnato al cliente con la massima attenzione ai dettagli. La tua soddisfazione 
+                  Ogni veicolo della nostra flotta è selezionato con cura, mantenuto in perfetta efficienza
+                  e consegnato al cliente con la massima attenzione ai dettagli. La tua soddisfazione
                   è la nostra priorità assoluta.
                 </p>
                 <Link href="/contattaci" className="flex items-center gap-2 text-sm uppercase tracking-widest" style={{color: '#1a6fd4', letterSpacing: '0.12em', fontSize: '0.75rem'}}>
@@ -62,7 +62,7 @@ export default function ChiSiamo() {
                 />
                 <div className="absolute -bottom-6 -left-6 p-5 rounded-sm"
                   style={{background: 'rgba(8,8,14,0.95)', border: '1px solid rgba(26,111,212,0.2)'}}>
-                  <div className="text-3xl mb-1" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4', fontWeight: 600}}>15+</div>
+                  <div className="text-3xl mb-1" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4', fontWeight: 600}}>3+</div>
                   <div className="text-xs uppercase tracking-widest" style={{color: '#555570', fontSize: '0.65rem', letterSpacing: '0.12em'}}>Anni di esperienza</div>
                 </div>
               </div>
@@ -102,10 +102,10 @@ export default function ChiSiamo() {
           <div className="max-w-5xl mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                {num: '200+', label: 'Auto gestite'},
-                {num: '5.000+', label: 'Clienti serviti'},
+                {num: '100+', label: 'Auto gestite'},
+                {num: '500+', label: 'Clienti serviti'},
                 {num: '98%', label: 'Soddisfazione'},
-                {num: '15+', label: 'Anni di attività'},
+                {num: '3+', label: 'Anni di attività'},
               ].map(({num, label}) => (
                 <div key={label} className="text-center p-6 rounded-sm" style={{background: 'rgba(26,111,212,0.03)', border: '1px solid rgba(26,111,212,0.1)'}}>
                   <div className="text-4xl mb-2" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4', fontWeight: 500}}>{num}</div>
@@ -117,29 +117,29 @@ export default function ChiSiamo() {
         </section>
 
         {/* Team placeholder */}
-        <section className="py-24" style={{background: '#0c0c16'}}>
-          <div className="max-w-7xl mx-auto px-6 text-center">
-            <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Le persone</p>
-            <h2 className="text-4xl mb-4" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Il Nostro Team</h2>
-            <p className="max-w-lg mx-auto mb-16" style={{color: '#8888aa', lineHeight: 1.8}}>
-              Professionisti appassionati, pronti ad assisterti con competenza e disponibilità.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {name: 'Marco Esposito', role: 'Fondatore & CEO', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80'},
-                {name: 'Laura Conti', role: 'Responsabile Noleggio', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80'},
-                {name: 'Davide Russo', role: 'Consulente Vendite', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80'},
-              ].map(({name, role, img}) => (
-                <div key={name} className="p-6 rounded-sm glass text-center" style={{border: '1px solid rgba(255,255,255,0.06)'}}>
-                  <img src={img} alt={name} className="w-24 h-24 rounded-full mx-auto mb-5 object-cover"
-                    style={{border: '2px solid rgba(26,111,212,0.3)'}} />
-                  <h3 className="text-xl mb-1" style={{fontFamily: "'Playfair Display', serif", fontWeight: 600}}>{name}</h3>
-                  <p className="text-xs uppercase tracking-widest" style={{color: '#1a6fd4', letterSpacing: '0.12em', fontSize: '0.65rem'}}>{role}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        // <section className="py-24" style={{background: '#0c0c16'}}>
+        //   <div className="max-w-7xl mx-auto px-6 text-center">
+        //     <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Le persone</p>
+        //     <h2 className="text-4xl mb-4" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Il Nostro Team</h2>
+        //     <p className="max-w-lg mx-auto mb-16" style={{color: '#8888aa', lineHeight: 1.8}}>
+        //       Professionisti appassionati, pronti ad assisterti con competenza e disponibilità.
+        //     </p>
+        //     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        //       {[
+        //         {name: 'Marco Esposito', role: 'Fondatore & CEO', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80'},
+        //         {name: 'Laura Conti', role: 'Responsabile Noleggio', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80'},
+        //         {name: 'Davide Russo', role: 'Consulente Vendite', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80'},
+        //       ].map(({name, role, img}) => (
+        //         <div key={name} className="p-6 rounded-sm glass text-center" style={{border: '1px solid rgba(255,255,255,0.06)'}}>
+        //           <img src={img} alt={name} className="w-24 h-24 rounded-full mx-auto mb-5 object-cover"
+        //             style={{border: '2px solid rgba(26,111,212,0.3)'}} />
+        //           <h3 className="text-xl mb-1" style={{fontFamily: "'Playfair Display', serif", fontWeight: 600}}>{name}</h3>
+        //           <p className="text-xs uppercase tracking-widest" style={{color: '#1a6fd4', letterSpacing: '0.12em', fontSize: '0.65rem'}}>{role}</p>
+        //         </div>
+        //       ))}
+        //     </div>
+        //   </div>
+        // </section>
       </main>
       <Footer />
     </>

@@ -84,9 +84,9 @@ export default async function Home() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto mt-16 pt-16" style={{borderTop: '1px solid rgba(255,255,255,0.07)'}}>
               {[
-                {num: '200+', label: 'Auto gestite'},
+                {num: '100+', label: 'Auto gestite'},
                 {num: '98%', label: 'Clienti soddisfatti'},
-                {num: '15+', label: 'Anni esperienza'},
+                {num: '3+', label: 'Anni esperienza'},
               ].map(s => (
                 <div key={s.num} className="text-center">
                   <div className="text-2xl font-semibold mb-1" style={{fontFamily: "'Playfair Display', serif", fontSize: '2rem', color: '#1a6fd4'}}>{s.num}</div>
