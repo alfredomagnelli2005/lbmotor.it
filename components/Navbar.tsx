@@ -3,39 +3,50 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronDown, Menu, X } from 'lucide-react'
+import Image from 'next/image'
 
 function LogoSVG() {
+  // return (
+  //   <svg width="42" height="32" viewBox="0 0 42 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  //     {/* Car body */}
+  //     <path d="M4 22h34v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3z" fill="url(#carBody)"/>
+  //     {/* Car roof - sporty coupe shape */}
+  //     <path d="M6 22L10 13h6l4-4h6l2 4h4l4 9H6z" fill="url(#carBody)"/>
+  //     {/* Windshield */}
+  //     <path d="M16 13l-3 9h14l-2-9H16z" fill="rgba(37,137,255,0.25)"/>
+  //     {/* Speed line */}
+  //     <path d="M1 20 Q6 18 12 19" stroke="url(#speedLine)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+  //     {/* Wheels */}
+  //     <circle cx="12" cy="24" r="3.5" fill="#0a0a14" stroke="url(#wheelGrad)" strokeWidth="1.5"/>
+  //     <circle cx="30" cy="24" r="3.5" fill="#0a0a14" stroke="url(#wheelGrad)" strokeWidth="1.5"/>
+  //     <circle cx="12" cy="24" r="1.2" fill="url(#wheelGrad)"/>
+  //     <circle cx="30" cy="24" r="1.2" fill="url(#wheelGrad)"/>
+  //     <defs>
+  //       <linearGradient id="carBody" x1="0" y1="13" x2="42" y2="28" gradientUnits="userSpaceOnUse">
+  //         <stop stopColor="#1a6fd4"/>
+  //         <stop offset="0.5" stopColor="#2589ff"/>
+  //         <stop offset="1" stopColor="#1a6fd4"/>
+  //       </linearGradient>
+  //       <linearGradient id="speedLine" x1="0" y1="0" x2="12" y2="0" gradientUnits="userSpaceOnUse">
+  //         <stop stopColor="#2589ff" stopOpacity="0"/>
+  //         <stop offset="1" stopColor="#2589ff"/>
+  //       </linearGradient>
+  //       <linearGradient id="wheelGrad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+  //         <stop stopColor="#c0c8d8"/>
+  //         <stop offset="1" stopColor="#8899aa"/>
+  //       </linearGradient>
+  //     </defs>
+  //   </svg>
+  // )
+
   return (
-    <svg width="42" height="32" viewBox="0 0 42 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Car body */}
-      <path d="M4 22h34v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3z" fill="url(#carBody)"/>
-      {/* Car roof - sporty coupe shape */}
-      <path d="M6 22L10 13h6l4-4h6l2 4h4l4 9H6z" fill="url(#carBody)"/>
-      {/* Windshield */}
-      <path d="M16 13l-3 9h14l-2-9H16z" fill="rgba(37,137,255,0.25)"/>
-      {/* Speed line */}
-      <path d="M1 20 Q6 18 12 19" stroke="url(#speedLine)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-      {/* Wheels */}
-      <circle cx="12" cy="24" r="3.5" fill="#0a0a14" stroke="url(#wheelGrad)" strokeWidth="1.5"/>
-      <circle cx="30" cy="24" r="3.5" fill="#0a0a14" stroke="url(#wheelGrad)" strokeWidth="1.5"/>
-      <circle cx="12" cy="24" r="1.2" fill="url(#wheelGrad)"/>
-      <circle cx="30" cy="24" r="1.2" fill="url(#wheelGrad)"/>
-      <defs>
-        <linearGradient id="carBody" x1="0" y1="13" x2="42" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#1a6fd4"/>
-          <stop offset="0.5" stopColor="#2589ff"/>
-          <stop offset="1" stopColor="#1a6fd4"/>
-        </linearGradient>
-        <linearGradient id="speedLine" x1="0" y1="0" x2="12" y2="0" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#2589ff" stopOpacity="0"/>
-          <stop offset="1" stopColor="#2589ff"/>
-        </linearGradient>
-        <linearGradient id="wheelGrad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
-          <stop stopColor="#c0c8d8"/>
-          <stop offset="1" stopColor="#8899aa"/>
-        </linearGradient>
-      </defs>
-    </svg>
+    <Image
+      src="/img/logo.png"
+      alt="Logo"
+      width={300}
+      height={300}
+      priority
+    />
   )
 }
 
@@ -93,9 +104,10 @@ export default function Navbar() {
             letterSpacing: '0.1em',
             color: '#f0f0f5',
           }}>
-            LB <span style={{color: '#1a6fd4'}}>MOTORS</span>
+             <span style={{color: '#1a6fd4'}}> </span>
           </span>
         </Link>
+
 
         {/* DESKTOP NAV */}
         <div className="hidden md:flex items-center gap-8">
