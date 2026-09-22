@@ -25,7 +25,7 @@ export default function CarCard({ car, type }: CarCardProps) {
             onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
           />
           <div className="absolute inset-0" style={{background: 'linear-gradient(to top, rgba(8,8,14,0.7) 0%, transparent 60%)'}} />
-          
+
           {/* Price badge */}
           <div className="absolute top-4 right-4 px-3 py-1 rounded-sm" style={{background: 'rgba(8,8,14,0.85)', border: '1px solid rgba(26,111,212,0.4)'}}>
             <span className="text-xs font-semibold" style={{color: '#1a6fd4', letterSpacing: '0.05em'}}>

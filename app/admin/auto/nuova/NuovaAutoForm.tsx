@@ -14,11 +14,20 @@ interface NuovaAutoFormProps {
   autoIniziale?: any // Contiene i dati se siamo in modalità modifica
 }
 
+// Funzione helper per convertire un file in Base64
+const convertFileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = (error) => reject(error)
+  })
+}
+
 export default function NuovaAutoForm({ autoIniziale }: NuovaAutoFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Prepariamo i valori predefiniti se stiamo modificando un'auto
   const { register, handleSubmit, reset } = useForm({
     defaultValues: autoIniziale ? {
       id: autoIniziale.id,
@@ -53,42 +62,19 @@ export default function NuovaAutoForm({ autoIniziale }: NuovaAutoFormProps) {
       const mainFile = mainImageInput?.files?.[0]
       const galleryFiles = galleryInput?.files ? Array.from(galleryInput.files) : []
 
-      let mainImageUrl = autoIniziale?.image || ''
-      let galleryUrls = autoIniziale?.images || []
-
-      // 1. CARICAMENTO IMMAGINE PRINCIPALE (Se inserita)
+      // 1. CONVERSIONE IMMAGINE PRINCIPALE IN BASE64
+      let mainImageBase64 = autoIniziale?.image || ''
       if (mainFile) {
-        const fileExt = mainFile.name.split('.').pop()
-        const fileName = `${Math.random()}.${fileExt}`
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('auto-images')
-          .upload(fileName, mainFile)
-
-        if (uploadError) throw new Error(`Errore upload immagine principale: ${uploadError.message}`)
-
-        const { data: publicUrlData } = supabase.storage
-          .from('auto-images')
-          .getPublicUrl(uploadData.path)
-
-        mainImageUrl = publicUrlData.publicUrl
+        mainImageBase64 = await convertFileToBase64(mainFile)
       }
 
-      // 2. CARICAMENTO GALLERIA IMMAGINI (Se inserite)
+      // 2. CONVERSIONE GALLERIA IMMAGINI IN BASE64[]
+      let galleryBase64s: string[] = autoIniziale?.images || []
       if (galleryFiles.length > 0) {
-        const uploadedPaths: string[] = []
-        for (const file of galleryFiles) {
-          const fileExt = file.name.split('.').pop()
-          const fileName = `${Math.random()}.${fileExt}`
-          const { data: upData, error: upError } = await supabase.storage
-            .from('auto-images')
-            .upload(fileName, file)
-
-          if (!upError && upData) {
-            const { data: pUrl } = supabase.storage.from('auto-images').getPublicUrl(upData.path)
-            uploadedPaths.push(pUrl.publicUrl)
-          }
-        }
-        galleryUrls = autoIniziale ? [...galleryUrls, ...uploadedPaths] : uploadedPaths
+        const convertedFiles = await Promise.all(
+          galleryFiles.map(file => convertFileToBase64(file))
+        )
+        galleryBase64s = autoIniziale ? [...galleryBase64s, ...convertedFiles] : convertedFiles
       }
 
       // 3. STRUTTURAZIONE DATI PER TABELLA 'cars' DI SUPABASE
@@ -107,8 +93,8 @@ export default function NuovaAutoForm({ autoIniziale }: NuovaAutoFormProps) {
         type: data.contratto,
         description: data.descrizione || '',
         features: listaAccessori,
-        image: mainImageUrl,
-        images: galleryUrls,
+        image: mainImageBase64,    // Stringa Base64 salvata direttamente nel DB
+        images: galleryBase64s,    // Array di stringhe Base64 salvato nel DB
         available: autoIniziale ? autoIniziale.available : true
       }
 
@@ -130,7 +116,7 @@ export default function NuovaAutoForm({ autoIniziale }: NuovaAutoFormProps) {
 
       alert(autoIniziale ? 'Vettura modificata con successo!' : 'Vettura aggiunta con successo!')
       reset()
-      router.push('/admin') // Ritorna alla dashboard principale
+      router.push('/admin')
       router.refresh()
 
     } catch (err: any) {

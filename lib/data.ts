@@ -126,10 +126,10 @@ export const DEV = {
 // ============================================================
 export const COMPANY_INFO = {
   name: 'LB MOTORS DI BORRELLI ALESSANDRO PIO',
-  address: 'Piazza Fausto e Luigi Gullo, 19 (CS)',
+  address: 'Piazza Fausto e Luigi Gullo, 21 (CS)',
   phone: '+39 351 3016996',
   whatsapp: '+39 351 3016996',
-  email: 'info@lbmotors.it',
+  email: 'info@lbmotor.it',
   piva: '04003820786',
   orari: 'Lun–Ven 9:00–19:00 | Sab 9:00–13:00',
 }

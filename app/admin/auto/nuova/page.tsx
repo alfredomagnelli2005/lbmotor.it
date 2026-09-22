@@ -104,8 +104,15 @@ export default async function ElencoAutoAdminPage() {
                         <Edit2 size={16} />
                       </Link>
 
-                      {/* Form con Server Action nativa sicura senza crash di confirm esterni */}
-                      <form action={handleServerDelete}>
+                      {/* Form con Server Action e conferma di eliminazione */}
+                      <form
+                        action={handleServerDelete} 
+                        onSubmit={(e) => {
+                          if (!confirm('Sei sicuro di voler eliminare questa vettura?')) {
+                            e.preventDefault()
+                          }
+                        }}
+                      >
                         <input type="hidden" name="carId" value={car.id} />
                         <button
                           type="submit"
