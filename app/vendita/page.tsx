@@ -12,7 +12,8 @@ const supabase = createClient(
 )
 
 export default async function VenditaPage() {
-  const { data: cars = [] } = await supabase.from('cars').select('*').eq('type', 'vendita').order('created_at', { ascending: false })
+  const { data } = await supabase.from('cars').select('*').eq('type', 'vendita').order('created_at', { ascending: false })
+  const cars = data || []
   return (
     <>
       <Navbar />

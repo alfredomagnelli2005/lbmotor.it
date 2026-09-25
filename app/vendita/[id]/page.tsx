@@ -40,6 +40,9 @@ export default function VenditaDetail({ params }: { params: { id: string } }) {
 
   const images = Array.isArray(car.images) && car.images.length ? car.images : [car.image].filter(Boolean)
   if (!images.length) images.push('https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800')
+  const features: string[] = Array.isArray(car.features)
+    ? car.features.filter((feature: unknown): feature is string => typeof feature === 'string')
+    : []
 
   const whatsappMsg = encodeURIComponent(`Ciao! Sono interessato all'auto ${car.brand} ${car.model} (${car.year}) - €${car.price.toLocaleString('it-IT')} - pubblicata sul sito LB Motors.`)
 
@@ -129,7 +132,7 @@ export default function VenditaDetail({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="text-lg mb-4" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>Optional & Dotazioni</h3>
                 <div className="flex flex-wrap gap-2">
-                  {car.features.map(f => (
+                  {features.map(f => (
                     <span key={f} className="px-3 py-1.5 text-xs rounded-sm"
                       style={{background: 'rgba(26,111,212,0.07)', border: '1px solid rgba(26,111,212,0.2)', color: '#1a6fd4'}}>
                       {f}
