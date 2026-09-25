@@ -50,7 +50,7 @@ export default function CarCard({ car, type }: CarCardProps) {
           <div className="mb-1">
             <span className="text-xs uppercase tracking-widest" style={{color: '#1a6fd4', fontSize: '0.65rem', letterSpacing: '0.15em'}}>{car.brand}</span>
           </div>
-          <h3 className="text-xl mb-4" style={{fontFamily: "'Playfair Display', serif", fontWeight: 600, color: '#f0f0f5'}}>{car.model}</h3>
+          <h3 className="text-xl mb-4" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 600, color: '#f0f0f5'}}>{car.model}</h3>
 
           <div className="grid grid-cols-2 gap-3 mb-5">
             {[

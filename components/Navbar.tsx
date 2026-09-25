@@ -74,7 +74,7 @@ export default function Navbar() {
   }
 
   const linkStyle = (active: boolean) => ({
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    fontFamily: "'Manrope', sans-serif",
     color: active ? '#1a6fd4' : '#9090b0',
     letterSpacing: '0.08em',
     fontSize: '0.72rem',
@@ -98,7 +98,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-3">
           <LogoSVG />
           <span style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Manrope', sans-serif",
             fontSize: '1.3rem',
             fontWeight: 700,
             letterSpacing: '0.1em',
@@ -161,7 +161,7 @@ export default function Navbar() {
                       style={{
                         display: 'block',
                         padding: '14px 20px',
-                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontFamily: "'Manrope', sans-serif",
                         fontSize: '0.75rem',
                         fontWeight: 500,
                         letterSpacing: '0.07em',
@@ -193,7 +193,7 @@ export default function Navbar() {
           <Link
             href="/contattaci"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               background: 'linear-gradient(135deg, #1a6fd4, #2589ff)',
               color: '#08080e',
               padding: '0.6rem 1.4rem',
@@ -231,7 +231,7 @@ export default function Navbar() {
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
                 style={{
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontFamily: "'Manrope', sans-serif",
                   padding: '1rem 0',
                   fontSize: '0.75rem',
                   fontWeight: 500,
@@ -247,7 +247,7 @@ export default function Navbar() {
             <button
               onClick={() => setServiziOpen(!serviziOpen)}
               style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -281,7 +281,7 @@ export default function Navbar() {
                     href={item.href}
                     onClick={() => { setMobileOpen(false); setServiziOpen(false) }}
                     style={{
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      fontFamily: "'Manrope', sans-serif",
                       padding: '0.75rem 0',
                       fontSize: '0.72rem',
                       fontWeight: 500,

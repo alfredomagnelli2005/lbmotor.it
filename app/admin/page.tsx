@@ -6,9 +6,9 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import AdminUsersPanel from './AdminUsersPanel'
 import {
   Car as CarIcon, Plus, LogOut, CheckCircle, XCircle,
-  Edit3, Trash2, DollarSign, Eye, BarChart2, Users,
+  Edit3, Trash2, Eye, BarChart2, Users,
   Package, Phone, Mail, Calendar, AlertTriangle,
-  TrendingUp, Clock, Star, MessageSquare, Bell, X, ShieldCheck, Search, RefreshCw
+  MessageSquare, X, ShieldCheck, Search, RefreshCw
 } from 'lucide-react'
 
 // ─── CONFIGURAZIONE SUPABASE LATO CLIENT ────────────────────
@@ -40,7 +40,6 @@ export default function AdminDashboard() {
   const [messageQuery, setMessageQuery] = useState('')
   const [messageFilter, setMessageFilter] = useState<'tutti' | 'non-letti'>('tutti')
   const [bookingQuery, setBookingQuery] = useState('')
-  const [bookingFilter, setBookingFilter] = useState<'tutti' | 'da-confermare' | 'pagate'>('tutti')
   const [dataLoading, setDataLoading] = useState(true)
   const [dataError, setDataError] = useState('')
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
@@ -122,8 +121,7 @@ export default function AdminDashboard() {
   }, [refreshDashboard]);
 
   const nonLetti = messaggi.filter(m => !m.letto).length
-  const prenotazioniInAttesa = prenotazioni.filter(p => !p.pagato).length
-  const incassoTotale = prenotazioni.filter(p => p.pagato).reduce((s, p) => s + Number(p.acconto || 0), 0)
+  const prenotazioniInAttesa = prenotazioni.length
   const disponibili = carsNoleggio.filter(c => c.available).length
 
   const handleLogout = async () => {
@@ -147,21 +145,6 @@ export default function AdminDashboard() {
       setMessaggi(prev => prev.map(m => m.id === id ? {...m, letto: true} : m))
     }
   }
-
-  const handlePay = async (id: string) => {
-      // Aggiorna la riga direttamente su Supabase impostando pagato = true
-      const { error } = await supabase
-        .from('prenotazioni')
-        .update({ pagato: true })
-        .eq('id', id)
-
-      if (!error) {
-        // Aggiorna lo stato locale per vedere la modifica istantaneamente sulla dashboard
-        setPrenotazioni(prev => prev.map(x => x.id === id ? {...x, pagato: true} : x))
-      } else {
-        alert("Errore durante l'aggiornamento del pagamento su Supabase: " + error.message)
-      }
-    }
 
   const handleDeleteCar = async () => {
     if (!deleteConfirm) return
@@ -234,11 +217,11 @@ export default function AdminDashboard() {
 
   // ─── STILI COMUNI (Invariati) ───────────────────────────
   const s = {
-    body: {fontFamily:"'Plus Jakarta Sans', sans-serif"},
-    display: {fontFamily:"'Playfair Display', serif"},
+    body: {fontFamily:"'Manrope', sans-serif"},
+    display: {fontFamily:"'Manrope', sans-serif"},
     card: {background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:'4px'},
     goldCard: {background:'rgba(26,111,212,0.04)', border:'1px solid rgba(26,111,212,0.15)', borderRadius:'4px'},
-    input: {background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', color:'#f0f0f5', padding:'0.65rem 1rem', borderRadius:'3px', width:'100%', fontFamily:"'Plus Jakarta Sans', sans-serif", fontSize:'0.875rem', outline:'none'},
+    input: {background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', color:'#f0f0f5', padding:'0.65rem 1rem', borderRadius:'3px', width:'100%', fontFamily:"'Manrope', sans-serif", fontSize:'0.875rem', outline:'none'},
     badge: (ok:boolean) => ({
       display:'inline-flex', alignItems:'center', gap:'5px', padding:'3px 10px', borderRadius:'2px', fontSize:'0.72rem', fontWeight:600,
       background: ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
@@ -281,8 +264,7 @@ export default function AdminDashboard() {
     const query = bookingQuery.trim().toLocaleLowerCase('it-IT')
     const matchesQuery = !query || [booking.cliente, booking.email, booking.car_name, booking.telefono, booking.date_from]
       .some(value => String(value || '').toLocaleLowerCase('it-IT').includes(query))
-    const matchesStatus = bookingFilter === 'tutti' || (bookingFilter === 'pagate' ? booking.pagato : !booking.pagato)
-    return matchesQuery && matchesStatus
+    return matchesQuery
   })
 
   return (
@@ -357,8 +339,7 @@ export default function AdminDashboard() {
 
             <div className="admin-stats-grid" style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1rem', marginBottom:'2rem'}}>
               <StatCard icon={CarIcon} label="Auto disponibili ora" val={disponibili} color="#22c55e" onClick={() => setTab('noleggio')} sub={`di ${carsNoleggio.length} totali`}/>
-              <StatCard icon={DollarSign} label="Incassato (acconti)" val={`€${incassoTotale}`} color="#1a6fd4" />
-              <StatCard icon={Calendar} label="Prenotazioni in attesa" val={prenotazioniInAttesa} color="#f59e0b" onClick={() => setTab('prenotazioni')} sub="da confermare"/>
+              <StatCard icon={Calendar} label="Richieste prenotazione" val={prenotazioniInAttesa} color="#f59e0b" onClick={() => setTab('prenotazioni')} sub="da ricontattare"/>
               <StatCard icon={MessageSquare} label="Nuovi messaggi" val={nonLetti} color="#60a5fa" onClick={() => setTab('messaggi')} sub="non letti"/>
             </div>
 
@@ -376,8 +357,8 @@ export default function AdminDashboard() {
                         <div style={{fontSize:'0.72rem', color:'#555570'}}>{p.car_name || p.carName} · {p.date_from || p.dateFrom}</div>
                       </div>
                       <div style={{display:'flex', alignItems:'center', gap:10}}>
-                        <span style={{fontSize:'0.85rem', fontWeight:700, color:'#1a6fd4'}}>€{p.acconto}</span>
-                        <span style={s.badge(p.pagato)}>{p.pagato ? 'Pagato' : 'Attesa'}</span>
+                        <span style={{fontSize:'0.85rem', fontWeight:700, color:'#1a6fd4'}}>€{p.prezzo_totale}</span>
+                        <span style={s.badge(true)}>Da ricontattare</span>
                       </div>
                     </div>
                   ))}
@@ -461,9 +442,9 @@ export default function AdminDashboard() {
                   <h3 style={{...s.display, fontSize:'1.3rem', marginBottom:'0.5rem'}}>Sei sicuro?</h3>
                   <p style={{color:'#8888aa', fontSize:'0.875rem', marginBottom:'1.5rem'}}>Questa azione eliminerà l'auto definitivamente dal database. Non si può annullare.</p>
                   <div style={{display:'flex', gap:8, justifyContent:'center'}}>
-                    <button onClick={() => setDeleteConfirm(null)} style={{padding:'0.6rem 1.2rem', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'2px', background:'transparent', color:'#8888aa', cursor:'pointer', fontFamily:"'Plus Jakarta Sans',sans-serif"}}>Annulla</button>
+                    <button onClick={() => setDeleteConfirm(null)} style={{padding:'0.6rem 1.2rem', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'2px', background:'transparent', color:'#8888aa', cursor:'pointer', fontFamily:"'Manrope',sans-serif"}}>Annulla</button>
                     <button onClick={handleDeleteCar}
-                      style={{padding:'0.6rem 1.2rem', background:'#ef4444', border:'none', borderRadius:'2px', color:'white', cursor:'pointer', fontWeight:600, fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
+                      style={{padding:'0.6rem 1.2rem', background:'#ef4444', border:'none', borderRadius:'2px', color:'white', cursor:'pointer', fontWeight:600, fontFamily:"'Manrope',sans-serif"}}>
                       Sì, elimina
                     </button>
                   </div>
@@ -507,14 +488,9 @@ export default function AdminDashboard() {
 {tab === 'prenotazioni' && (
   <div>
     <h1 style={{...s.display, fontSize:'2rem', fontWeight:600, marginBottom:'0.5rem'}}>Prenotazioni</h1>
-    <p style={{color:'#666680', fontSize:'0.875rem', marginBottom:'1.5rem'}}>Tutte le prenotazioni ricevute con i dati del cliente e lo stato del pagamento.</p>
+    <p style={{color:'#666680', fontSize:'0.875rem', marginBottom:'1.5rem'}}>Richieste ricevute: contatta il cliente per verificare disponibilità e concordare i dettagli.</p>
     <div className="admin-message-toolbar">
       <label className="admin-search"><Search size={16}/><input value={bookingQuery} onChange={event => setBookingQuery(event.target.value)} placeholder="Cerca cliente, auto, email" aria-label="Cerca prenotazioni" /></label>
-      <div className="admin-filter-pills" role="group" aria-label="Filtra prenotazioni">
-        <button className={bookingFilter === 'tutti' ? 'active' : ''} onClick={() => setBookingFilter('tutti')}>Tutte <span>{prenotazioni.length}</span></button>
-        <button className={bookingFilter === 'da-confermare' ? 'active' : ''} onClick={() => setBookingFilter('da-confermare')}>In attesa <span>{prenotazioniInAttesa}</span></button>
-        <button className={bookingFilter === 'pagate' ? 'active' : ''} onClick={() => setBookingFilter('pagate')}>Pagate <span>{prenotazioni.length - prenotazioniInAttesa}</span></button>
-      </div>
     </div>
     <div style={{display:'flex', flexDirection:'column', gap:12}}>
       {filteredBookings.length === 0 ? (
@@ -532,7 +508,6 @@ export default function AdminDashboard() {
           const dataFine = p.date_to || p.dateTo || p.data_fine || "N/D";
           const totaleGiorni = p.giorni || p.days || 0;
           const prezzoTotale = p.prezzo_totale || p.prezzoTotale || p.total_price || p.prezzo || 0;
-          const valoreAcconto = p.acconto || p.deposit || 0;
 
           return (
             <div key={p.id || p._id} style={{...s.card, padding:'1.25rem'}}>
@@ -540,7 +515,7 @@ export default function AdminDashboard() {
                 <div style={{display:'flex', flexDirection:'column', gap:8}}>
                   <div style={{display:'flex', alignItems:'center', gap:10}}>
                     <span style={{fontSize:'1rem', fontWeight:700}}>{clienteNome}</span>
-                    <span style={s.badge(p.pagato)}>{p.pagato ? <><CheckCircle size={11}/>Acconto pagato</> : <><Clock size={11}/>In attesa di pagamento</>}</span>
+                    <span style={s.badge(true)}>Da ricontattare</span>
                   </div>
                   <div style={{display:'flex', gap:20, flexWrap:'wrap'}}>
                     <span style={{fontSize:'0.8rem', color:'#8888aa', display:'flex', alignItems:'center', gap:5}}><CarIcon size={13}/> {autoScelta}</span>
@@ -553,24 +528,16 @@ export default function AdminDashboard() {
                 <div style={{textAlign:'right'}}>
                   <div style={{fontSize:'0.72rem', color:'#555570', marginBottom:'3px'}}>Totale noleggio</div>
                   <div style={{fontSize:'1.1rem', fontWeight:700, color:'#f0f0f5'}}>€{prezzoTotale}</div>
-                  <div style={{fontSize:'0.72rem', color:'#555570', marginTop:'4px'}}>Acconto</div>
-                  <div style={{fontSize:'1rem', fontWeight:700, color:'#1a6fd4'}}>€{valoreAcconto}</div>
                 </div>
               </div>
-              {!p.pagato && (
-                <div style={{marginTop:'1rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,0.05)', display:'flex', gap:8}}>
+              <div style={{marginTop:'1rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,0.05)', display:'flex', gap:8, flexWrap:'wrap'}}>
                   <a href={`tel:${telefonoNum}`} style={{display:'flex', alignItems:'center', gap:6, padding:'7px 14px', background:'rgba(26,111,212,0.08)', border:'1px solid rgba(26,111,212,0.2)', borderRadius:'2px', color:'#1a6fd4', fontSize:'0.78rem', fontWeight:600}}>
                     <Phone size={13}/> Chiama il cliente
                   </a>
                   <a href={`mailto:${emailIndirizzo}?subject=Conferma prenotazione ${autoScelta}`} style={{display:'flex', alignItems:'center', gap:6, padding:'7px 14px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'2px', color:'#8888aa', fontSize:'0.78rem'}}>
                     <Mail size={13}/> Manda email
                   </a>
-                  <button onClick={() => handlePay(p.id)}
-                    style={{display:'flex', alignItems:'center', gap:6, padding:'7px 14px', background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.3)', borderRadius:'2px', color:'#22c55e', fontSize:'0.78rem', fontWeight:600, cursor:'pointer'}}>
-                    <CheckCircle size={13}/> Segna come pagato
-                  </button>
-                </div>
-              )}
+              </div>
             </div>
           );
         })
@@ -676,7 +643,7 @@ export default function AdminDashboard() {
                     background: newCarType===t ? 'linear-gradient(135deg, #1456a8, #1a6fd4)' : 'rgba(255,255,255,0.04)',
                     color: newCarType===t ? '#07070d' : '#8888aa',
                     border: newCarType===t ? 'none' : '1px solid rgba(255,255,255,0.08)',
-                    fontFamily:"'Plus Jakarta Sans',sans-serif",
+                    fontFamily:"'Manrope',sans-serif",
                   }}>
                     {t === 'noleggio' ? 'Sezione Noleggio' : 'Sezione Vendita'}
                   </button>
@@ -751,7 +718,7 @@ export default function AdminDashboard() {
               </div>
               <button type="submit" disabled={savingCar} style={{
                 padding:'0.85rem', background:'linear-gradient(135deg, #1456a8, #1a6fd4)', border:'none', borderRadius:'2px',
-                color:'#07070d', fontWeight:700, fontSize:'0.875rem', cursor:'pointer', fontFamily:"'Plus Jakarta Sans',sans-serif",
+                color:'#07070d', fontWeight:700, fontSize:'0.875rem', cursor:'pointer', fontFamily:"'Manrope',sans-serif",
                 letterSpacing:'0.05em',
               }}>
                 {savingCar ? 'Ottimizzazione immagini e salvataggio…' : 'Aggiungi Auto al Sito'}

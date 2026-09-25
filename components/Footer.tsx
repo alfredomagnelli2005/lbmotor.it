@@ -15,7 +15,7 @@ export default function Footer() {
               <div className="w-9 h-9 rounded-sm flex items-center justify-center" style={{background: 'linear-gradient(135deg, #1a6fd4, #2589ff)'}}>
                 <Car size={18} color="#08080e" strokeWidth={2.5} />
               </div>
-              <span style={{fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', fontWeight: 600, letterSpacing: '0.15em'}}>
+              <span style={{fontFamily: "'Manrope', sans-serif", fontSize: '1.2rem', fontWeight: 600, letterSpacing: '0.15em'}}>
                 LB <span style={{color: '#1a6fd4'}}>MOTORS</span>
               </span>
             </div>

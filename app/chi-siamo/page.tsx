@@ -22,9 +22,9 @@ export default function ChiSiamo() {
           </div>
           <div className="relative z-10 max-w-5xl mx-auto px-6">
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>La Nostra Storia</p>
-            <h1 className="text-6xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Chi Siamo</h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Chi Siamo</h1>
             <p className="max-w-xl leading-relaxed" style={{color: '#8888aa', lineHeight: 1.9}}>
-              Da oltre 3 anni sinonimo di eccellenza nel settore automobilistico.
+              Da oltre 10 anni nel settore automobilistico, con passione e attenzione per ogni cliente.
               Una storia fatta di passione, professionalità e clienti soddisfatti.
             </p>
           </div>
@@ -36,7 +36,7 @@ export default function ChiSiamo() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
               <div>
                 <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>La Nostra Missione</p>
-                <h2 className="text-4xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
+                <h2 className="text-4xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>
                   Più di un semplice noleggio
                 </h2>
                 <p className="leading-relaxed mb-6" style={{color: '#8888aa', lineHeight: 1.9}}>
@@ -60,9 +60,9 @@ export default function ChiSiamo() {
                   className="w-full rounded-sm"
                   style={{border: '1px solid rgba(26,111,212,0.15)'}}
                 />
-                <div className="absolute -bottom-6 -left-6 p-5 rounded-sm"
+                <div className="absolute bottom-0 left-0 sm:-bottom-6 sm:-left-6 p-4 sm:p-5 rounded-sm"
                   style={{background: 'rgba(8,8,14,0.95)', border: '1px solid rgba(26,111,212,0.2)'}}>
-                  <div className="text-3xl mb-1" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4', fontWeight: 600}}>3+</div>
+                  <div className="text-3xl mb-1" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4', fontWeight: 600}}>10+</div>
                   <div className="text-xs uppercase tracking-widest" style={{color: '#555570', fontSize: '0.65rem', letterSpacing: '0.12em'}}>Anni di esperienza</div>
                 </div>
               </div>
@@ -75,7 +75,7 @@ export default function ChiSiamo() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
               <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>I Nostri Valori</p>
-              <h2 className="text-4xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Cosa ci rende diversi</h2>
+              <h2 className="text-4xl" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Cosa ci rende diversi</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
@@ -89,7 +89,7 @@ export default function ChiSiamo() {
                     style={{background: 'linear-gradient(135deg, rgba(26,111,212,0.1), rgba(26,111,212,0.05))', border: '1px solid rgba(26,111,212,0.2)'}}>
                     <Icon size={24} style={{color: '#1a6fd4'}} />
                   </div>
-                  <h3 className="text-xl mb-3" style={{fontFamily: "'Playfair Display', serif", fontWeight: 600}}>{title}</h3>
+                  <h3 className="text-xl mb-3" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 600}}>{title}</h3>
                   <p className="text-sm leading-relaxed" style={{color: '#666680', lineHeight: 1.8}}>{desc}</p>
                 </div>
               ))}
@@ -100,15 +100,15 @@ export default function ChiSiamo() {
         {/* Numbers */}
         <section className="py-20" style={{background: '#08080e'}}>
           <div className="max-w-5xl mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
               {[
-                {num: '100+', label: 'Auto gestite'},
-                {num: '500+', label: 'Clienti serviti'},
-                {num: '98%', label: 'Soddisfazione'},
-                {num: '3+', label: 'Anni di attività'},
+                {num: 'Auto', label: 'Noleggio e vendita'},
+                {num: 'Su misura', label: 'Servizio personalizzato'},
+                {num: 'LB Motors', label: 'Assistenza dedicata'},
+                {num: '10+', label: 'Anni di attività'},
               ].map(({num, label}) => (
                 <div key={label} className="text-center p-6 rounded-sm" style={{background: 'rgba(26,111,212,0.03)', border: '1px solid rgba(26,111,212,0.1)'}}>
-                  <div className="text-4xl mb-2" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4', fontWeight: 500}}>{num}</div>
+                  <div className="text-xl md:text-3xl break-words mb-2" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4', fontWeight: 600}}>{num}</div>
                   <div className="text-xs uppercase tracking-widest" style={{color: '#555570', letterSpacing: '0.12em', fontSize: '0.65rem'}}>{label}</div>
                 </div>
               ))}
@@ -120,7 +120,7 @@ export default function ChiSiamo() {
         <section className="py-24" style={{background: '#0c0c16'}}>
           <div className="max-w-7xl mx-auto px-6 text-center">
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Le persone</p>
-            <h2 className="text-4xl mb-4" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Il Nostro Team</h2>
+            <h2 className="text-4xl mb-4" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Il Nostro Team</h2>
             <p className="max-w-lg mx-auto mb-16" style={{color: '#8888aa', lineHeight: 1.8}}>
               Professionisti appassionati, pronti ad assisterti con competenza e disponibilità.
             </p>
@@ -133,7 +133,7 @@ export default function ChiSiamo() {
                 <div key={name} className="p-6 rounded-sm glass text-center" style={{border: '1px solid rgba(255,255,255,0.06)'}}>
                   <img src={img} alt={name} className="w-24 h-24 rounded-full mx-auto mb-5 object-cover"
                     style={{border: '2px solid rgba(26,111,212,0.3)'}} />
-                  <h3 className="text-xl mb-1" style={{fontFamily: "'Playfair Display', serif", fontWeight: 600}}>{name}</h3>
+                  <h3 className="text-xl mb-1" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 600}}>{name}</h3>
                   <p className="text-xs uppercase tracking-widest" style={{color: '#1a6fd4', letterSpacing: '0.12em', fontSize: '0.65rem'}}>{role}</p>
                 </div>
               ))}

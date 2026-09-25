@@ -30,18 +30,18 @@ export default async function VenditaPage() {
           </div>
           <div className="relative z-10 max-w-5xl mx-auto px-6">
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Acquisto Certificato</p>
-            <h1 className="text-6xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Auto in Vendita</h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Auto in Vendita</h1>
             <p className="max-w-xl leading-relaxed" style={{color: '#8888aa', lineHeight: 1.9}}>
               Una selezione di veicoli premium verificati e certificati. Ogni auto è controllata, 
               documentata e pronta per il trasferimento. Assistenza completa nelle pratiche burocratiche.
             </p>
             <div className="flex gap-8 mt-12 pt-12" style={{borderTop: '1px solid rgba(255,255,255,0.07)'}}>
               <div>
-                <div className="text-3xl mb-1" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>{cars.length}</div>
+                <div className="text-3xl mb-1" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4'}}>{cars.length}</div>
                 <div className="text-xs uppercase tracking-widest" style={{color: '#555570', fontSize: '0.65rem'}}>Veicoli disponibili</div>
               </div>
               <div>
-                <div className="text-3xl mb-1" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>100%</div>
+                <div className="text-3xl mb-1" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4'}}>100%</div>
                 <div className="text-xs uppercase tracking-widest" style={{color: '#555570', fontSize: '0.65rem'}}>Certificati e verificati</div>
               </div>
             </div>

@@ -50,7 +50,7 @@ export default function AdminLogin() {
             style={{background: 'linear-gradient(135deg, #1a6fd4, #2589ff)'}}>
             <Car size={26} color="#06060c" strokeWidth={2.5} />
           </div>
-          <h1 className="text-3xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
+          <h1 className="text-3xl" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>
             LB <span style={{color: '#1a6fd4'}}>MOTORS</span>
           </h1>
           <p className="text-xs uppercase tracking-widest mt-2" style={{color: '#555570', letterSpacing: '0.15em'}}>Area Riservata</p>
@@ -58,7 +58,7 @@ export default function AdminLogin() {
 
         {/* Card */}
         <div className="rounded-sm p-8 glass" style={{border: '1px solid rgba(26,111,212,0.2)', boxShadow: '0 40px 80px rgba(0,0,0,0.6)'}}>
-          <h2 className="text-2xl mb-2" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Accesso Admin</h2>
+          <h2 className="text-2xl mb-2" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Accesso Admin</h2>
           <p className="text-sm mb-8" style={{color: '#555570'}}>Inserisci le tue credenziali per accedere al pannello di gestione.</p>
 
           {error && (

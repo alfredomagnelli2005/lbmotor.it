@@ -46,25 +46,25 @@ export default async function NoleggioPage() {
           </div>
           <div className="relative z-10 max-w-5xl mx-auto px-6">
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Servizio Premium</p>
-            <h1 className="text-6xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Noleggio Auto</h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Noleggio Auto</h1>
             <p className="max-w-xl leading-relaxed" style={{color: '#8888aa', lineHeight: 1.9}}>
               Scegli il veicolo che desideri, per il periodo che preferisci. Contratti trasparenti,
               consegna inclusa e assistenza durante tutto il noleggio.
             </p>
 
             {/* Stats bar */}
-            <div className="flex gap-12 mt-12 pt-12" style={{borderTop: '1px solid rgba(255,255,255,0.07)'}}>
+            <div className="flex flex-wrap gap-6 sm:gap-12 mt-12 pt-8 sm:pt-12" style={{borderTop: '1px solid rgba(255,255,255,0.07)'}}>
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <CheckCircle size={16} color="#22c55e" />
-                  <span className="text-2xl font-semibold" style={{fontFamily: "'Playfair Display', serif", color: '#22c55e'}}>{available.length}</span>
+                  <span className="text-2xl font-semibold" style={{fontFamily: "'Manrope', sans-serif", color: '#22c55e'}}>{available.length}</span>
                 </div>
                 <span className="text-xs uppercase tracking-widest" style={{color: '#555570', fontSize: '0.65rem'}}>Disponibili ora</span>
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <XCircle size={16} color="#ef4444" />
-                  <span className="text-2xl font-semibold" style={{fontFamily: "'Playfair Display', serif", color: '#ef4444'}}>{unavailable.length}</span>
+                  <span className="text-2xl font-semibold" style={{fontFamily: "'Manrope', sans-serif", color: '#ef4444'}}>{unavailable.length}</span>
                 </div>
                 <span className="text-xs uppercase tracking-widest" style={{color: '#555570', fontSize: '0.65rem'}}>Non disponibili</span>
               </div>
@@ -103,19 +103,19 @@ export default async function NoleggioPage() {
 
             {/* Terms notice */}
             <div className="mt-16 p-6 rounded-sm" style={{background: 'rgba(26,111,212,0.04)', border: '1px solid rgba(26,111,212,0.12)'}}>
-              <h3 className="text-lg mb-3" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>Informazioni Generali sul Noleggio</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm" style={{color: '#8888aa', lineHeight: 1.8}}>
-                <div>
-                  <p className="font-semibold mb-2" style={{color: '#f0f0f5', fontSize: '0.85rem'}}>Acconto richiesto</p>
-                  <p>Per confermare la prenotazione è richiesto un acconto del 30% del totale. Il saldo verrà corrisposto al ritiro del veicolo.</p>
-                </div>
+              <h3 className="text-lg mb-3" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4'}}>Informazioni Generali sul Noleggio</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm" style={{color: '#8888aa', lineHeight: 1.8}}>
                 <div>
                   <p className="font-semibold mb-2" style={{color: '#f0f0f5', fontSize: '0.85rem'}}>Documenti necessari</p>
-                  <p>Patente di guida valida, documento d'identità e carta di credito intestata al guidatore principale.</p>
+                  <p>Patente di guida valida e documento di identità valido. No carta di credito, no cauzione.</p>
                 </div>
                 <div>
-                  <p className="font-semibold mb-2" style={{color: '#f0f0f5', fontSize: '0.85rem'}}>Copertura assicurativa</p>
-                  <p>Tutti i veicoli sono dotati di polizza Kasko. I dettagli specifici sono indicati in ogni scheda vettura.</p>
+                  <p className="font-semibold mb-2" style={{color: '#f0f0f5', fontSize: '0.85rem'}}>Come funziona la prenotazione</p>
+                  <p>Invia la richiesta online: ti contatteremo per verificare disponibilità e concordare i dettagli del noleggio.</p>
+                </div>
+                <div>
+                  <p className="font-semibold mb-2" style={{color: '#f0f0f5', fontSize: '0.85rem'}}>Prezzi trasparenti</p>
+                  <p>Il prezzo giornaliero e il totale stimato per il periodo scelto sono mostrati prima di inviare la richiesta.</p>
                 </div>
               </div>
             </div>

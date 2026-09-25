@@ -1,11 +1,3 @@
-// ============================================================
-// LIB/DATA.TS — DATI MOCK
-// ============================================================
-// Sostituire questi dati con chiamate al database reale.
-// Struttura consigliata: MongoDB o PostgreSQL.
-// I campi corrispondono a quanto atteso dalle pagine del sito.
-// ============================================================
-
 export interface Car {
   id: string
   name: string
@@ -24,88 +16,6 @@ export interface Car {
   available?: boolean     // solo per noleggio
   type: 'noleggio' | 'vendita'
   features: string[]
-  // Vincoli contrattuali noleggio
-  contractTerms?: {
-    depositoPercentuale: number   // es. 30
-    kmGiornalieriInclusi: number  // es. 200
-    costoPerkm: number            // costo per km extra
-    etaMinima: number             // anni
-    patenteMinima: string         // es. "B"
-    assicurazione: string         // descrizione copertura
-    cancellazione: string         // politica cancellazione
-  }
-}
-
-export const CARS_VENDITA: Car[] = [
-  {
-    id: 'v1',
-    name: 'Mercedes GLE 350d',
-    brand: 'Mercedes',
-    model: 'GLE 350d',
-    year: 2021,
-    price: 68000,
-    image: 'https://images.unsplash.com/photo-1617469767987-a5b6df52e33c?w=800&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1617469767987-a5b6df52e33c?w=800&q=80',
-      'https://images.unsplash.com/photo-1563720223185-11003d516935?w=800&q=80',
-    ],
-    fuel: 'Diesel',
-    transmission: 'Automatico',
-    seats: 7,
-    km: 42000,
-    color: 'Obsidian Black',
-    description: 'Mercedes GLE in perfette condizioni, tagliandi Mercedes certificati. Sette posti, ideale per famiglie o uso professionale. Completo di ogni optional.',
-    type: 'vendita',
-    features: ['7 Posti', 'AMG Line', 'Tetto Panoramico', 'Burmester Sound', 'Telecamere 360°', 'Sedili Riscaldati/Ventilati'],
-  },
-  {
-    id: 'v2',
-    name: 'BMW X5 xDrive30d',
-    brand: 'BMW',
-    model: 'X5 xDrive30d',
-    year: 2020,
-    price: 55000,
-    image: 'https://images.unsplash.com/photo-1580414057403-c5f451f30e1c?w=800&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1580414057403-c5f451f30e1c?w=800&q=80',
-    ],
-    fuel: 'Diesel',
-    transmission: 'Automatico',
-    seats: 5,
-    km: 67000,
-    color: 'Space Grey',
-    description: 'BMW X5 in eccellente stato, sempre tenuta da privato con cura maniacale. Libro tagliandi BMW completo. Un SUV iconico con prestazioni straordinarie.',
-    type: 'vendita',
-    features: ['xDrive', 'M Sport', 'iDrive 7', 'Harman Kardon', 'Retrocamera HD', 'Adaptive LED'],
-  },
-  {
-    id: 'v3',
-    name: 'Audi A6 Avant 40 TDI',
-    brand: 'Audi',
-    model: 'A6 Avant 40 TDI',
-    year: 2022,
-    price: 48000,
-    image: 'https://images.unsplash.com/photo-1611566026373-c6c8da0ea861?w=800&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1611566026373-c6c8da0ea861?w=800&q=80',
-    ],
-    fuel: 'Diesel',
-    transmission: 'Automatico',
-    seats: 5,
-    km: 28000,
-    color: 'Grigio Glaciale',
-    description: 'Audi A6 Avant quasi nuova, chilometraggio basso. La station wagon premium per eccellenza: elegante, pratica e con tecnologia all\'avanguardia.',
-    type: 'vendita',
-    features: ['Virtual Cockpit Plus', 'S-Tronic', 'Matrix LED', 'Quattro', 'Tetto Panoramico', 'Bang & Olufsen'],
-  },
-]
-
-export const PAYMENT_CONFIG = {
-  depositoPercentuale: 30,  // percentuale acconto
-  currency: 'EUR',
-}
-export const DEV = {
-  author: 'Alfredo Magnelli',
 }
 // ============================================================
 // CONFIGURAZIONE CONTATTI AZIENDA

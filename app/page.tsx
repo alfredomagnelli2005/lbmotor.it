@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import CarCard from '@/components/CarCard'
-import { COMPANY_INFO } from '@/lib/data' // Rimuovi CARS_NOLEGGIO e CARS_VENDITA
+import { COMPANY_INFO } from '@/lib/data'
 import { ArrowRight, Star, Shield, Clock, Award, ChevronDown, Phone, Mail } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 
@@ -60,7 +60,7 @@ export default async function Home() {
               <Star size={12} style={{color: '#1a6fd4'}} fill="#1a6fd4" />
             </div>
 
-            <h1 className="mb-6 leading-tight" style={{fontFamily: "'Playfair Display', serif", fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 500, color: '#f0f0f5', lineHeight: 1.1}}>
+            <h1 className="mb-6 leading-tight" style={{fontFamily: "'Manrope', sans-serif", fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 500, color: '#f0f0f5', lineHeight: 1.1}}>
               L'auto perfetta,<br />
               <span style={{background: 'linear-gradient(135deg, #1a6fd4, #2589ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'}}>
                 per ogni momento
@@ -86,10 +86,10 @@ export default async function Home() {
               {[
                 {num: '100+', label: 'Auto gestite'},
                 {num: '98%', label: 'Clienti soddisfatti'},
-                {num: '3+', label: 'Anni esperienza'},
+                {num: '10+', label: 'Anni esperienza'},
               ].map(s => (
                 <div key={s.num} className="text-center">
-                  <div className="text-2xl font-semibold mb-1" style={{fontFamily: "'Playfair Display', serif", fontSize: '2rem', color: '#1a6fd4'}}>{s.num}</div>
+                  <div className="text-2xl font-semibold mb-1" style={{fontFamily: "'Manrope', sans-serif", fontSize: '2rem', color: '#1a6fd4'}}>{s.num}</div>
                   <div className="text-xs uppercase tracking-widest" style={{color: '#555570', letterSpacing: '0.12em', fontSize: '0.65rem'}}>{s.label}</div>
                 </div>
               ))}
@@ -119,7 +119,7 @@ export default async function Home() {
                     style={{background: 'rgba(26,111,212,0.08)', border: '1px solid rgba(26,111,212,0.2)'}}>
                     <Icon size={22} style={{color: '#1a6fd4'}} />
                   </div>
-                  <h3 className="mb-2 text-lg" style={{fontFamily: "'Playfair Display', serif", fontWeight: 600}}>{title}</h3>
+                  <h3 className="mb-2 text-lg" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 600}}>{title}</h3>
                   <p className="text-sm leading-relaxed" style={{color: '#666680', lineHeight: 1.7}}>{desc}</p>
                 </div>
               ))}
@@ -133,7 +133,7 @@ export default async function Home() {
                     <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-14">
                       <div>
                         <p className="text-xs uppercase tracking-widest mb-3" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Il Nostro Parco Auto</p>
-                        <h2 className="text-5xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
+                        <h2 className="text-5xl" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>
                           Auto in Noleggio
                         </h2>
                       </div>
@@ -172,7 +172,7 @@ export default async function Home() {
           <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(8,8,14,0.9), rgba(26,111,212,0.05))'}} />
           <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Acquisto Sicuro</p>
-            <h2 className="text-4xl md:text-5xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
+            <h2 className="text-4xl md:text-5xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>
               Cerchi la tua auto perfetta?
             </h2>
             <p className="mb-8 leading-relaxed" style={{color: '#8888aa', lineHeight: 1.8}}>
@@ -191,7 +191,7 @@ export default async function Home() {
                     <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-14">
                       <div>
                         <p className="text-xs uppercase tracking-widest mb-3" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Acquisto Diretto</p>
-                        <h2 className="text-5xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>
+                        <h2 className="text-5xl" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>
                           Auto in Vendita
                         </h2>
                       </div>
@@ -214,7 +214,7 @@ export default async function Home() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-14">
               <p className="text-xs uppercase tracking-widest mb-3" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>La Nostra Flotta</p>
-              <h2 className="text-5xl" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Gallery</h2>
+              <h2 className="text-5xl" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Gallery</h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
@@ -239,7 +239,7 @@ export default async function Home() {
         <section className="py-20" style={{background: '#08080e'}}>
           <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Siamo qui per te</p>
-            <h2 className="text-4xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Hai domande? Contattaci</h2>
+            <h2 className="text-4xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Hai domande? Contattaci</h2>
             <p className="mb-10 leading-relaxed" style={{color: '#8888aa'}}>Il nostro team è a tua disposizione per qualsiasi informazione su noleggio, acquisto o assistenza.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href={`tel:${COMPANY_INFO.phone}`} className="btn-primary flex items-center gap-2 justify-center">

@@ -50,7 +50,7 @@ export default function Contattaci() {
           </div>
           <div className="relative z-10 max-w-5xl mx-auto px-6">
             <p className="text-xs uppercase tracking-widest mb-4" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>Siamo qui per te</p>
-            <h1 className="text-6xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Contattaci</h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Contattaci</h1>
             <p className="max-w-xl leading-relaxed" style={{color: '#8888aa', lineHeight: 1.9}}>
               Hai domande su noleggio, acquisto o hai bisogno di assistenza? 
               Il nostro team è pronto a risponderti nel più breve tempo possibile.
@@ -63,7 +63,7 @@ export default function Contattaci() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
               {/* LEFT: Form */}
               <div>
-                <h2 className="text-3xl mb-8" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Invia un messaggio</h2>
+                <h2 className="text-3xl mb-8" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Invia un messaggio</h2>
                 
                 {sent ? (
                   <div className="text-center py-16">
@@ -71,12 +71,12 @@ export default function Contattaci() {
                       style={{background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)'}}>
                       <CheckCircle size={32} color="#22c55e" />
                     </div>
-                    <h3 className="text-2xl mb-3" style={{fontFamily: "'Playfair Display', serif"}}>Messaggio inviato!</h3>
+                    <h3 className="text-2xl mb-3" style={{fontFamily: "'Manrope', sans-serif"}}>Messaggio inviato!</h3>
                     <p style={{color: '#8888aa'}}>Ti risponderemo entro 24 ore lavorative.</p>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="text-xs uppercase tracking-widest mb-2 block" style={{color: '#8888aa', letterSpacing: '0.1em'}}>Nome*</label>
                         <input type="text" required className="input-dark" value={form.nome} placeholder="Mario"
@@ -129,7 +129,7 @@ export default function Contattaci() {
 
               {/* RIGHT: Info */}
               <div>
-                <h2 className="text-3xl mb-8" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Dove siamo</h2>
+                <h2 className="text-3xl mb-8" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Dove siamo</h2>
                 
                 <div className="flex flex-col gap-5 mb-10">
                   {[
@@ -176,16 +176,16 @@ export default function Contattaci() {
                   </div>
                 </a>
 
-                {/* Map placeholder */}
-                <div className="mt-8 rounded-sm overflow-hidden" style={{height: 220, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                  {/* TODO: Sostituire con Google Maps embed reale */}
-                  {/* <iframe src="https://maps.google.com/maps?q=VIA+ROMA+123+ROMA&output=embed" width="100%" height="100%" style={{border:0}} /> */}
-                  <div className="text-center p-8">
-                    <MapPin size={32} style={{color: '#1a6fd4', margin: '0 auto 12px'}} />
-                    <p className="text-sm" style={{color: '#555570'}}>Mappa Google Maps<br />
-                      <span className="text-xs" style={{color: '#3a3a52'}}>(integrare con API Key reale)</span>
-                    </p>
-                  </div>
+                <div className="mt-8 rounded-sm overflow-hidden" style={{height: 'clamp(240px, 38vw, 380px)', border: '1px solid rgba(255,255,255,0.06)'}}>
+                  <iframe
+                    title={`Mappa Google Maps - ${COMPANY_INFO.address}`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(COMPANY_INFO.address)}&output=embed`}
+                    className="w-full h-full"
+                    style={{border: 0}}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    allowFullScreen
+                  />
                 </div>
               </div>
             </div>

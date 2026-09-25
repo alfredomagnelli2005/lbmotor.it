@@ -100,8 +100,8 @@ export default function VenditaDetail({ params }: { params: { id: string } }) {
               )}
 
               <div className="mb-2 text-xs uppercase tracking-widest" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>{car.brand}</div>
-              <h1 className="text-5xl mb-3" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>{car.model}</h1>
-              <div className="text-4xl mb-8" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>
+              <h1 className="text-5xl mb-3" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>{car.model}</h1>
+              <div className="text-4xl mb-8" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4'}}>
                 €{car.price.toLocaleString('it-IT')}
               </div>
 
@@ -130,7 +130,7 @@ export default function VenditaDetail({ params }: { params: { id: string } }) {
 
               {/* Features */}
               <div>
-                <h3 className="text-lg mb-4" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>Optional & Dotazioni</h3>
+                <h3 className="text-lg mb-4" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4'}}>Optional & Dotazioni</h3>
                 <div className="flex flex-wrap gap-2">
                   {features.map(f => (
                     <span key={f} className="px-3 py-1.5 text-xs rounded-sm"
@@ -145,7 +145,7 @@ export default function VenditaDetail({ params }: { params: { id: string } }) {
             {/* RIGHT: Contatto */}
             <div className="lg:sticky lg:top-28 self-start">
               <div className="rounded-sm p-8 glass" style={{border: '1px solid rgba(26,111,212,0.15)'}}>
-                <h2 className="text-2xl mb-2" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Ti interessa?</h2>
+                <h2 className="text-2xl mb-2" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Ti interessa?</h2>
                 <p className="text-sm mb-8" style={{color: '#8888aa'}}>
                   Contattaci per informazioni, preventivi o per fissare un appuntamento per visionare il veicolo.
                 </p>
@@ -210,7 +210,7 @@ export default function VenditaDetail({ params }: { params: { id: string } }) {
                 <div className="mt-6 pt-6" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
                   <div className="flex justify-between items-center">
                     <span style={{color: '#8888aa', fontSize: '0.85rem'}}>Prezzo di vendita</span>
-                    <span className="text-2xl font-semibold" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>
+                    <span className="text-2xl font-semibold" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4'}}>
                       €{car.price.toLocaleString('it-IT')}
                     </span>
                   </div>

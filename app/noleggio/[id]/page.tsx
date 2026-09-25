@@ -5,10 +5,7 @@ import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { createClient } from '@supabase/supabase-js'
-import { CheckCircle, XCircle, Calendar, Users, Fuel, Gauge, ArrowLeft, Shield, CreditCard, AlertCircle, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
-
-// Configurazione standard fallbacks se mancano dal DB
-const DEFAULT_DEPOSIT_PERCENT = 30
+import { CheckCircle, XCircle, Calendar, Users, Fuel, Gauge, ArrowLeft, AlertCircle, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,10 +23,10 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [currentImg, setCurrentImg] = useState(0)
-  const [step, setStep] = useState<'info' | 'book' | 'payment'>('info')
+  const [step, setStep] = useState<'info' | 'book' | 'review'>('info')
   const [formData, setFormData] = useState({nome:'', cognome:'', email:'', telefono:'', note:''})
   const [submitting, setSubmitting] = useState(false)
-  const [paymentDone, setPaymentDone] = useState(false)
+  const [requestSent, setRequestSent] = useState(false)
 
   // 1. Recupero dell'auto in tempo reale al montaggio del componente
   useEffect(() => {
@@ -81,13 +78,6 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
     carImages = [car.image || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800']
   }
 
-  // Estrazione sicura dei termini contrattuali dinamici dal campo JSON del DB
-  const contractTerms = typeof car.contract_terms === 'string'
-    ? JSON.parse(car.contract_terms)
-    : (car.contract_terms || null)
-
-  const depositPercent = contractTerms?.depositoPercentuale || DEFAULT_DEPOSIT_PERCENT
-
   // Calcolo dinamico dei giorni e prezzi
   const calcDays = () => {
     if (!dateFrom || !dateTo) return 0
@@ -98,15 +88,13 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
   }
   const days = calcDays()
   const totalPrice = days * (car.price || 0)
-  const depositAmount = Math.round(totalPrice * (depositPercent / 100))
-
   const handleBook = (e: React.FormEvent) => {
     e.preventDefault()
     if (!dateFrom || !dateTo || new Date(dateTo) <= new Date(dateFrom)) return
-    setStep('payment')
+    setStep('review')
   }
 
-  const handlePayment = async (e: React.FormEvent) => {
+  const handleRequest = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
 
@@ -132,9 +120,7 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
             date_from: formattedDateFrom,
             date_to: formattedDateTo,
             giorni: Number(days),
-            prezzo_totale: Number(totalPrice),
-            acconto: Number(depositAmount),
-            pagato: false
+            prezzo_totale: Number(totalPrice)
           }
         ])
 
@@ -143,7 +129,7 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
         throw error
       }
 
-      setPaymentDone(true)
+      setRequestSent(true)
     } catch (err: any) {
       alert(`Errore nel salvataggio: ${err.message || 'Controlla la console per i dettagli.'}`)
     } finally {
@@ -155,7 +141,7 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
     <>
       <Navbar />
       <main style={{background: '#08080e'}}>
-        <div className="max-w-7xl mx-auto px-6 pt-32 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-14 sm:pb-20">
           {/* Breadcrumb */}
           <Link href="/noleggio" className="inline-flex items-center gap-2 mb-10 text-xs uppercase tracking-widest transition-colors"
             style={{color: '#555570', letterSpacing: '0.12em'}}
@@ -163,19 +149,19 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
             <ArrowLeft size={14} /> Torna al Noleggio
           </Link>
 
-          {paymentDone ? (
+          {requestSent ? (
             /* SUCCESS PANEL */
             <div className="max-w-xl mx-auto text-center py-20">
               <div className="w-20 h-20 rounded-full mx-auto mb-8 flex items-center justify-center" style={{background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)'}}>
                 <CheckCircle size={40} color="#22c55e" />
               </div>
-              <h2 className="text-4xl mb-4" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Richiesta Inviata!</h2>
-              <p className="mb-2" style={{color: '#8888aa'}}>La tua richiesta di prenotazione è stata registrata. L'acconto previsto è di <span style={{color: '#1a6fd4'}}>€{depositAmount}</span>.</p>
-              <p className="mb-8 text-sm" style={{color: '#555570'}}>Il pagamento non è stato ancora effettuato e il veicolo non è ancora bloccato. Ti contatteremo a {formData.email} per confermare disponibilità e modalità di pagamento.</p>
+              <h2 className="text-4xl mb-4" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Richiesta Inviata!</h2>
+              <p className="mb-2" style={{color: '#8888aa'}}>La tua richiesta è stata registrata. Ti contatteremo per verificare la disponibilità e concordare i dettagli.</p>
+              <p className="mb-8 text-sm" style={{color: '#555570'}}>Abbiamo ricevuto la richiesta per il periodo dal {dateFrom} al {dateTo}. Puoi ricontattarci anche al {formData.telefono}.</p>
               <Link href="/noleggio" className="btn-primary">Torna al Catalogo</Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
               {/* LEFT: Car info */}
               <div>
                 {/* Gallery */}
@@ -207,8 +193,8 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                 </div>
 
                 <div className="mb-2 text-xs uppercase tracking-widest" style={{color: '#1a6fd4', letterSpacing: '0.2em'}}>{car.brand}</div>
-                <h1 className="text-5xl mb-2" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>{car.model}</h1>
-                <div className="text-3xl mb-8" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl mb-2 break-words" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>{car.model}</h1>
+                <div className="text-3xl mb-8" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4'}}>
                   €{car.price}<span className="text-lg" style={{color: '#555570'}}>/giorno</span>
                 </div>
 
@@ -236,7 +222,7 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                 {/* Features */}
                 {car.features && (
                   <div className="mb-8">
-                    <h3 className="text-lg mb-4" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>Dotazioni</h3>
+                    <h3 className="text-lg mb-4" style={{fontFamily: "'Manrope', sans-serif", color: '#1a6fd4'}}>Dotazioni</h3>
                     <div className="flex flex-wrap gap-2">
                       {(Array.isArray(car.features) ? car.features : JSON.parse(car.features || '[]')).map((f: string) => (
                         <span key={f} className="px-3 py-1.5 text-xs rounded-sm" style={{background: 'rgba(26,111,212,0.07)', border: '1px solid rgba(26,111,212,0.2)', color: '#1a6fd4'}}>
@@ -247,39 +233,20 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                   </div>
                 )}
 
-                {/* Contract Terms */}
-                {contractTerms && (
-                  <div className="rounded-sm p-6" style={{background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)'}}>
-                    <h3 className="flex items-center gap-2 text-lg mb-5" style={{fontFamily: "'Playfair Display', serif", color: '#f0f0f5'}}>
-                      <Shield size={18} style={{color: '#1a6fd4'}} /> Condizioni Contrattuali
-                    </h3>
-                    <div className="grid grid-cols-1 gap-3 text-sm" style={{color: '#8888aa'}}>
-                      {[
-                        {label: 'Acconto richiesto', val: `${depositPercent}% del totale`},
-                        {label: 'Km inclusi/giorno', val: `${contractTerms.kmGiornalieriInclusi || 'Illimitati'} km`},
-                        {label: 'Costo km extra', val: `€${contractTerms.costoPerkm || '0'}/km`},
-                        {label: 'Età minima', val: `${contractTerms.etaMinima || '18'} anni`},
-                        {label: 'Patente richiesta', val: contractTerms.patenteMinima || 'Patente B'},
-                        {label: 'Assicurazione', val: contractTerms.assicurazione || 'Kasko inclusa'},
-                        {label: 'Cancellazione', val: contractTerms.cancellazione || 'Gratuita'},
-                      ].map(({label, val}) => (
-                        <div key={label} className="flex justify-between gap-4 py-2" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
-                          <span style={{color: '#666680'}}>{label}</span>
-                          <span style={{color: '#f0f0f5', textAlign: 'right', maxWidth: '55%'}}>{val}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="rounded-sm p-5 text-sm" style={{background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', color: '#8888aa'}}>
+                  <h3 className="text-base font-semibold mb-2" style={{color: '#f0f0f5'}}>Documenti necessari</h3>
+                  <p>Patente di guida valida e documento di identità valido.</p>
+                  <p className="mt-2" style={{color:'#1a6fd4'}}>No carta di credito, no cauzione.</p>
+                </div>
               </div>
 
               {/* RIGHT SIDE: Interactive Form steps */}
               <div className="lg:sticky lg:top-28 self-start">
-                <div className="rounded-sm p-8 glass" style={{border: '1px solid rgba(26,111,212,0.15)'}}>
+                <div className="rounded-sm p-5 sm:p-8 glass" style={{border: '1px solid rgba(26,111,212,0.15)'}}>
 
                   {/* Progress Line Steps */}
                   <div className="flex items-center gap-3 mb-8">
-                    {(['info','book','payment'] as const).map((s, i) => (
+                    {(['info','book','review'] as const).map((s, i) => (
                       <div key={s} className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all"
                           style={{
@@ -296,7 +263,7 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                   {/* STEP 1: DATE PERIOD SELECTION */}
                   {step === 'info' && (
                     <>
-                      <h2 className="text-2xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Seleziona il Periodo</h2>
+                      <h2 className="text-2xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Seleziona il Periodo</h2>
                       <div className="flex flex-col gap-4 mb-6">
                         <div>
                           <label className="text-xs uppercase tracking-widest mb-2 block" style={{color: '#8888aa', letterSpacing: '0.12em'}}>Data di Inizio</label>
@@ -317,8 +284,8 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                             <span className="text-sm">€{totalPrice.toLocaleString('it-IT')}</span>
                           </div>
                           <div className="flex justify-between pt-3" style={{borderTop: '1px solid rgba(255,255,255,0.07)'}}>
-                            <span className="text-sm font-semibold">Acconto richiesto ({depositPercent}%)</span>
-                            <span className="font-bold" style={{color: '#1a6fd4', fontSize: '1.1rem'}}>€{depositAmount}</span>
+                            <span className="text-sm font-semibold">Totale stimato</span>
+                            <span className="font-bold" style={{color: '#1a6fd4', fontSize: '1.1rem'}}>€{totalPrice.toLocaleString('it-IT')}</span>
                           </div>
                         </div>
                       )}
@@ -345,9 +312,9 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                   {/* STEP 2: USER DETAILS */}
                   {step === 'book' && (
                     <form onSubmit={handleBook}>
-                      <h2 className="text-2xl mb-6" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>I Tuoi Dati</h2>
+                      <h2 className="text-2xl mb-6" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>I Tuoi Dati</h2>
                       <div className="flex flex-col gap-4 mb-6">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label className="text-xs uppercase tracking-widest mb-2 block" style={{color: '#8888aa', letterSpacing: '0.1em'}}>Nome</label>
                             <input type="text" required className="input-dark" value={formData.nome}
@@ -383,10 +350,10 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                   )}
 
                   {/* STEP 3: ORDER CONFIRMATION / RECAP */}
-                  {step === 'payment' && (
-                    <form onSubmit={handlePayment}>
-                      <h2 className="text-2xl mb-2" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Riepilogo e Invio</h2>
-                      <p className="text-sm mb-6" style={{color: '#8888aa'}}>Verifica i dettagli prima di registrare il blocco dell'auto.</p>
+                  {step === 'review' && (
+                    <form onSubmit={handleRequest}>
+                      <h2 className="text-2xl mb-2" style={{fontFamily: "'Manrope', sans-serif", fontWeight: 500}}>Riepilogo richiesta</h2>
+                      <p className="text-sm mb-6" style={{color: '#8888aa'}}>Controlla i dettagli. La richiesta non comporta pagamenti.</p>
 
                       <div className="rounded-sm p-5 mb-6" style={{background: 'rgba(26,111,212,0.04)', border: '1px solid rgba(26,111,212,0.15)'}}>
                         <div className="flex justify-between mb-2 text-sm">
@@ -397,21 +364,10 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                           <span style={{color: '#8888aa'}}>Totale noleggio ({days} gg)</span>
                           <span>€{totalPrice.toLocaleString('it-IT')}</span>
                         </div>
-                        <div className="flex justify-between font-semibold pt-3" style={{borderTop: '1px solid rgba(255,255,255,0.07)'}}>
-                          <span>Acconto da versare</span>
-                          <span style={{color: '#1a6fd4', fontSize: '1.2rem'}}>€{depositAmount}</span>
-                        </div>
                       </div>
 
-                      {/* Info Box — Spiegazione Saldo al ritiro */}
                       <div className="p-4 rounded-sm mb-6 text-sm" style={{background: 'rgba(37,99,235,0.07)', border: '1px solid rgba(37,99,235,0.2)', color: '#93c5fd'}}>
-                        <div className="flex items-center gap-2 mb-1">
-                          <CreditCard size={14} />
-                          <span className="font-semibold">Nessun pagamento online richiesto</span>
-                        </div>
-                        <p style={{color: '#8888aa', fontSize: '0.8rem', lineHeight: 1.5}}>
-                          L'acconto e il saldo verranno corrisposti direttamente al ritiro del veicolo o tramite bonifico bancario dopo il contatto telefonico di conferma con i nostri operatori.
-                        </p>
+                        Dopo l'invio ti contatteremo per confermare disponibilità e dettagli. Nessun pagamento o cauzione è richiesto in questa fase.
                       </div>
 
                       <div className="flex gap-3">
