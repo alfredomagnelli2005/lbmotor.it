@@ -1,9 +1,18 @@
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import CarCard from '@/components/CarCard'
-import { CARS_VENDITA } from '@/lib/data'
+import { createClient } from '@supabase/supabase-js'
 
-export default function VenditaPage() {
+export const dynamic = 'force-dynamic'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  { global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) } }
+)
+
+export default async function VenditaPage() {
+  const { data: cars = [] } = await supabase.from('cars').select('*').eq('type', 'vendita').order('created_at', { ascending: false })
   return (
     <>
       <Navbar />
@@ -27,7 +36,7 @@ export default function VenditaPage() {
             </p>
             <div className="flex gap-8 mt-12 pt-12" style={{borderTop: '1px solid rgba(255,255,255,0.07)'}}>
               <div>
-                <div className="text-3xl mb-1" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>{CARS_VENDITA.length}</div>
+                <div className="text-3xl mb-1" style={{fontFamily: "'Playfair Display', serif", color: '#1a6fd4'}}>{cars.length}</div>
                 <div className="text-xs uppercase tracking-widest" style={{color: '#555570', fontSize: '0.65rem'}}>Veicoli disponibili</div>
               </div>
               <div>
@@ -41,9 +50,10 @@ export default function VenditaPage() {
         <section className="py-16" style={{background: '#08080e'}}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {CARS_VENDITA.map(car => (
+              {cars.map(car => (
                 <CarCard key={car.id} car={car} type="vendita" />
               ))}
+              {cars.length === 0 && <p className="col-span-full text-center py-12" style={{color:'#8888aa'}}>Al momento non ci sono auto in vendita.</p>}
             </div>
 
             {/* Garanzie */}

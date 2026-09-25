@@ -2,10 +2,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Car, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react'
-import { ADMIN_CREDENTIALS } from '@/lib/data'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+
+const supabase = createSupabaseBrowserClient()
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState('')
@@ -17,27 +19,16 @@ export default function AdminLogin() {
     setLoading(true)
     setError('')
 
-    // TODO: Sostituire con autenticazione reale tramite NextAuth.js o JWT
-    // Esempio con NextAuth:
-    //   const result = await signIn('credentials', { username, password, redirect: false })
-    //   if (result?.error) setError('Credenziali non valide')
-    //   else router.push('/admin')
-    //
-    // Esempio con API custom:
-    //   const res = await fetch('/api/auth/login', { method:'POST', body: JSON.stringify({username, password}) })
-    //   const { token } = await res.json()
-    //   localStorage.setItem('admin_token', token)
-
-    await new Promise(r => setTimeout(r, 800)) // Simula chiamata API
-
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-      // TODO: Impostare cookie di sessione sicuro
-      sessionStorage.setItem('admin_auth', 'true')
-      router.push('/admin')
-    } else {
-      setError('Credenziali non valide. Riprova.')
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+      if (error) throw error
+      router.replace('/admin')
+      router.refresh()
+    } catch {
+      setError('Email o password non valide. Riprova.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
@@ -80,17 +71,17 @@ export default function AdminLogin() {
 
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
             <div>
-              <label className="text-xs uppercase tracking-widest mb-2 block" style={{color: '#8888aa', letterSpacing: '0.12em'}}>Username</label>
+            <label className="text-xs uppercase tracking-widest mb-2 block" style={{color: '#8888aa', letterSpacing: '0.12em'}}>Email</label>
               <div className="relative">
                 <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{color: '#555570'}} />
                 <input
-                  type="text"
+                  type="email"
                   required
                   className="input-dark"
                   style={{paddingLeft: '2.5rem'}}
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  placeholder="admin"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="admin@lbmotor.it"
                 />
               </div>
             </div>

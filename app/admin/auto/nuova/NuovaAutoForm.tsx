@@ -3,12 +3,10 @@
 import { useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 // Inizializzazione del client Supabase lato client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabase = createSupabaseBrowserClient()
 
 interface NuovaAutoFormProps {
   autoIniziale?: any // Contiene i dati se siamo in modalità modifica

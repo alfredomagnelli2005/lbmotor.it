@@ -1,17 +1,28 @@
 'use server'
 
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+async function getSupabase() {
+  const cookieStore = cookies()
+  const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: cookiesToSet => cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
+    },
+  })
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user?.app_metadata?.role !== 'admin') throw new Error('Non autorizzato.')
+  return supabase
+}
 
 // Funzione Helper per caricare immagini nello Storage di Supabase
 async function uploadImage(file: File): Promise<string | null> {
   if (!file || file.size === 0) return null
   try {
+    const supabase = await getSupabase()
     const fileExt = file.name.split('.').pop()
     const fileName = `${Math.random()}-${Date.now()}.${fileExt}`
     const filePath = `vetture/${fileName}`
@@ -33,6 +44,7 @@ async function uploadImage(file: File): Promise<string | null> {
 // 1. AGGIUNGI O MODIFICA AUTO
 export async function salvaAuto(data: any, mainFile?: File, galleryFiles?: File[]) {
   try {
+    const supabase = await getSupabase()
     let mainImageUrl = data.image || ''
     let galleryUrls: string[] = data.images || []
 
@@ -96,6 +108,7 @@ export async function salvaAuto(data: any, mainFile?: File, galleryFiles?: File[
 // 2. ELIMINA AUTO
 export async function eliminaAuto(id: string) {
   try {
+    const supabase = await getSupabase()
     const { error } = await supabase
       .from('cars')
       .delete()
@@ -112,6 +125,7 @@ export async function eliminaAuto(id: string) {
 
 // 3. RECUPERA AUTO PER ID (Per popolare il form in modifica)
 export async function getAutoById(id: string) {
+  const supabase = await getSupabase()
   const { data, error } = await supabase
     .from('cars')
     .select('*')

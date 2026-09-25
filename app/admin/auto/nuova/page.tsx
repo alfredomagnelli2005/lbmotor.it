@@ -1,13 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { Edit2, Trash2, Plus, X, Upload, Car as CarIcon } from 'lucide-react'
 
 // Inizializzazione client Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabase = createSupabaseBrowserClient()
 
 export default function GestioneFlottaPage() {
   const [cars, setCars] = useState<any[]>([])

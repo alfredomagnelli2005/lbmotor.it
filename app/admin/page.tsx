@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import {
   Car as CarIcon, Plus, LogOut, CheckCircle, XCircle,
   Edit3, Trash2, DollarSign, Eye, BarChart2, Users,
@@ -11,12 +11,26 @@ import {
 } from 'lucide-react'
 
 // ─── CONFIGURAZIONE SUPABASE LATO CLIENT ────────────────────
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabase = createSupabaseBrowserClient()
 
 // ─── TIPI ───────────────────────────────────────────────────
 type TabType = 'dashboard' | 'noleggio' | 'vendita' | 'aggiungi' | 'prenotazioni' | 'messaggi'
+
+async function compressImage(file: File): Promise<string> {
+  const bitmap = await createImageBitmap(file)
+  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale))
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale))
+  const context = canvas.getContext('2d')
+  if (!context) {
+    bitmap.close()
+    throw new Error('Impossibile elaborare questa immagine nel browser.')
+  }
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+  return canvas.toDataURL('image/jpeg', 0.78)
+}
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -33,14 +47,13 @@ export default function AdminDashboard() {
   const [selectedMsg, setSelectedMsg] = useState<any | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [newCar, setNewCar] = useState({brand:'',model:'',year:new Date().getFullYear(),price:0,fuel:'Diesel',transmission:'Automatico',seats:5,color:'',description:'',image:'',km:0})
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null)
+  const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([])
+  const [savingCar, setSavingCar] = useState(false)
+  const [imageInputVersion, setImageInputVersion] = useState(0)
 
   // ─── CARICAMENTO DATI E REALTIME DA SUPABASE ─────────────────────────
   useEffect(() => {
-    if (typeof window !== 'undefined' && !sessionStorage.getItem('admin_auth')) {
-      router.push('/admin/login')
-      return;
-    }
-
     const fetchData = async () => {
       // Carica Auto
       const { data: cars } = await supabase.from('cars').select('*').order('created_at', { ascending: false })
@@ -72,8 +85,20 @@ export default function AdminDashboard() {
       )
       .subscribe();
 
+    const messaggiCanale = supabase
+      .channel('realtime-messaggi')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messaggi' },
+        (payload) => {
+          setMessaggi(current => [payload.new, ...current.filter(message => message.id !== payload.new.id)])
+        }
+      )
+      .subscribe()
+
     return () => {
       supabase.removeChannel(prenotazioniCanale);
+      supabase.removeChannel(messaggiCanale);
     };
   }, [router]);
 
@@ -82,7 +107,11 @@ export default function AdminDashboard() {
   const incassoTotale = prenotazioni.filter(p => p.pagato).reduce((s, p) => s + Number(p.acconto || 0), 0)
   const disponibili = carsNoleggio.filter(c => c.available).length
 
-  const handleLogout = () => { sessionStorage.removeItem('admin_auth'); router.push('/admin/login') }
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.replace('/admin/login')
+    router.refresh()
+  }
 
   // ─── AZIONI AL DATABASE ───────────────────────────────────
 
@@ -138,6 +167,12 @@ export default function AdminDashboard() {
 
   const handleAddCar = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSavingCar(true)
+
+    try {
+      const mainImageUrl = mainImageFile ? await compressImage(mainImageFile) : newCar.image.trim()
+      if (!mainImageUrl) throw new Error('Seleziona almeno una foto principale oppure inserisci un URL immagine.')
+      const galleryUrls = await Promise.all(galleryImageFiles.map(compressImage))
 
     const carData = {
       brand: newCar.brand,
@@ -152,8 +187,8 @@ export default function AdminDashboard() {
       km: newCar.km,
       type: newCarType,
       available: true,
-      image: newCar.image,
-      images: [newCar.image]
+      image: mainImageUrl,
+      images: [mainImageUrl, ...galleryUrls]
     }
 
     const { data, error } = await supabase.from('cars').insert([carData]).select()
@@ -164,9 +199,17 @@ export default function AdminDashboard() {
 
       setAddSuccess(true)
       setNewCar({brand:'',model:'',year:new Date().getFullYear(),price:0,fuel:'Diesel',transmission:'Automatico',seats:5,color:'',description:'',image:'',km:0})
+      setMainImageFile(null)
+      setGalleryImageFiles([])
+      setImageInputVersion(version => version + 1)
       setTimeout(() => setAddSuccess(false), 4000)
     } else {
-      alert("Errore nel salvataggio: " + error?.message)
+      throw error || new Error('Salvataggio non riuscito.')
+    }
+    } catch (error: any) {
+      alert("Errore nel salvataggio: " + (error?.message || error))
+    } finally {
+      setSavingCar(false)
     }
   }
 
@@ -635,20 +678,27 @@ export default function AdminDashboard() {
                 <input style={s.input} placeholder="es. Nero Metallizzato" value={newCar.color} onChange={e => setNewCar(p => ({...p, color:e.target.value}))}/>
               </div>
               <div>
-                <label style={{fontSize:'0.72rem', color:'#8888aa', display:'block', marginBottom:6, fontWeight:500, letterSpacing:'0.07em', textTransform:'uppercase'}}>Link foto (URL)</label>
-                <input style={s.input} placeholder="https://..." value={newCar.image} onChange={e => setNewCar(p => ({...p, image:e.target.value}))}/>
-                <p style={{fontSize:'0.7rem', color:'#444460', marginTop:4}}>Incolla un link directo a una foto dell'auto (es. da Google Drive o Unsplash).</p>
+                <label style={{fontSize:'0.72rem', color:'#8888aa', display:'block', marginBottom:6, fontWeight:500, letterSpacing:'0.07em', textTransform:'uppercase'}}>Foto principale *</label>
+                <input key={`main-${imageInputVersion}`} type="file" accept="image/*" style={s.input} onChange={e => setMainImageFile(e.target.files?.[0] || null)}/>
+                {mainImageFile && <p style={{fontSize:'0.7rem', color:'#8888aa', marginTop:4}}>{mainImageFile.name}</p>}
+                <p style={{fontSize:'0.7rem', color:'#666680', marginTop:4}}>Oppure inserisci un URL immagine già online.</p>
+                <input style={{...s.input, marginTop:8}} placeholder="https://..." value={newCar.image} onChange={e => setNewCar(p => ({...p, image:e.target.value}))}/>
+              </div>
+              <div>
+                <label style={{fontSize:'0.72rem', color:'#8888aa', display:'block', marginBottom:6, fontWeight:500, letterSpacing:'0.07em', textTransform:'uppercase'}}>Altre immagini</label>
+                <input key={`gallery-${imageInputVersion}`} type="file" accept="image/*" multiple style={s.input} onChange={e => setGalleryImageFiles(Array.from(e.target.files || []))}/>
+                {galleryImageFiles.length > 0 && <p style={{fontSize:'0.7rem', color:'#8888aa', marginTop:4}}>{galleryImageFiles.length} immagini selezionate</p>}
               </div>
               <div>
                 <label style={{fontSize:'0.72rem', color:'#8888aa', display:'block', marginBottom:6, fontWeight:500, letterSpacing:'0.07em', textTransform:'uppercase'}}>Descrizione *</label>
                 <textarea required rows={4} style={{...s.input, resize:'none'}} placeholder="Descrivi l'auto: caratteristiche, storia, punti di forza..." value={newCar.description} onChange={e => setNewCar(p => ({...p, description:e.target.value}))}/>
               </div>
-              <button type="submit" style={{
+              <button type="submit" disabled={savingCar} style={{
                 padding:'0.85rem', background:'linear-gradient(135deg, #1456a8, #1a6fd4)', border:'none', borderRadius:'2px',
                 color:'#07070d', fontWeight:700, fontSize:'0.875rem', cursor:'pointer', fontFamily:"'Plus Jakarta Sans',sans-serif",
                 letterSpacing:'0.05em',
               }}>
-                Aggiungi Auto al Sito
+                {savingCar ? 'Ottimizzazione immagini e salvataggio…' : 'Aggiungi Auto al Sito'}
               </button>
             </form>
           </div>

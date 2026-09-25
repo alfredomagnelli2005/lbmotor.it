@@ -102,6 +102,7 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
 
   const handleBook = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!dateFrom || !dateTo || new Date(dateTo) <= new Date(dateFrom)) return
     setStep('payment')
   }
 
@@ -169,8 +170,8 @@ export default function NoleggioDetail({ params }: { params: { id: string } }) {
                 <CheckCircle size={40} color="#22c55e" />
               </div>
               <h2 className="text-4xl mb-4" style={{fontFamily: "'Playfair Display', serif", fontWeight: 500}}>Richiesta Inviata!</h2>
-              <p className="mb-2" style={{color: '#8888aa'}}>Il blocco del veicolo e l'acconto di <span style={{color: '#1a6fd4'}}>€{depositAmount}</span> sono stati registrati.</p>
-              <p className="mb-8 text-sm" style={{color: '#555570'}}>Abbiamo preso in carico la tua pratica. Riceverai una mail di conferma a {formData.email} non appena l'admin verificherà i documenti.</p>
+              <p className="mb-2" style={{color: '#8888aa'}}>La tua richiesta di prenotazione è stata registrata. L'acconto previsto è di <span style={{color: '#1a6fd4'}}>€{depositAmount}</span>.</p>
+              <p className="mb-8 text-sm" style={{color: '#555570'}}>Il pagamento non è stato ancora effettuato e il veicolo non è ancora bloccato. Ti contatteremo a {formData.email} per confermare disponibilità e modalità di pagamento.</p>
               <Link href="/noleggio" className="btn-primary">Torna al Catalogo</Link>
             </div>
           ) : (

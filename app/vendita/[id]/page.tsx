@@ -1,17 +1,45 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { CARS_VENDITA, COMPANY_INFO } from '@/lib/data'
+import { COMPANY_INFO } from '@/lib/data'
+import { createClient } from '@supabase/supabase-js'
 import { Calendar, Users, Fuel, Gauge, ArrowLeft, ChevronLeft, ChevronRight, Phone, Mail, MessageCircle } from 'lucide-react'
 
-export default function VenditaDetail({ params }: { params: { id: string } }) {
-  const car = CARS_VENDITA.find(c => c.id === params.id)
-  if (!car) return <div style={{color:'white', padding:'10rem', textAlign:'center'}}>Auto non trovata</div>
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 
+export default function VenditaDetail({ params }: { params: { id: string } }) {
+  const [car, setCar] = useState<any>(null)
+  const [loadingCar, setLoadingCar] = useState(true)
   const [currentImg, setCurrentImg] = useState(0)
   const [contactMethod, setContactMethod] = useState<'whatsapp'|'phone'|'email'|null>(null)
+
+  useEffect(() => {
+    let active = true
+    const fetchCar = async () => {
+      try {
+        const { data, error } = await supabase.from('cars').select('*').eq('id', params.id).eq('type', 'vendita').maybeSingle()
+        if (error) throw error
+        if (active) setCar(data)
+      } catch (error) {
+        console.error('Errore nel caricamento dell’auto in vendita:', error)
+        if (active) setCar(null)
+      } finally {
+        if (active) setLoadingCar(false)
+      }
+    }
+    setLoadingCar(true)
+    setCurrentImg(0)
+    fetchCar()
+    return () => { active = false }
+  }, [params.id])
+
+  if (loadingCar) return <div style={{color:'white', padding:'10rem', textAlign:'center'}}>Caricamento auto…</div>
+  if (!car) return <div style={{color:'white', padding:'10rem', textAlign:'center'}}>Auto non trovata</div>
+
+  const images = Array.isArray(car.images) && car.images.length ? car.images : [car.image].filter(Boolean)
+  if (!images.length) images.push('https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800')
 
   const whatsappMsg = encodeURIComponent(`Ciao! Sono interessato all'auto ${car.brand} ${car.model} (${car.year}) - €${car.price.toLocaleString('it-IT')} - pubblicata sul sito LB Motors.`)
 
@@ -33,16 +61,16 @@ export default function VenditaDetail({ params }: { params: { id: string } }) {
             <div>
               {/* Gallery */}
               <div className="relative rounded-sm overflow-hidden mb-6" style={{aspectRatio: '16/10'}}>
-                <img src={car.images[currentImg]} alt={car.name} className="w-full h-full object-cover" />
+                <img src={images[currentImg] || images[0]} alt={`${car.brand} ${car.model}`} className="w-full h-full object-cover" />
                 <div className="absolute inset-0" style={{background: 'linear-gradient(to top, rgba(8,8,14,0.5), transparent 60%)'}} />
-                {car.images.length > 1 && (
+                {images.length > 1 && (
                   <>
-                    <button onClick={() => setCurrentImg(p => (p - 1 + car.images.length) % car.images.length)}
+                    <button onClick={() => setCurrentImg(p => (p - 1 + images.length) % images.length)}
                       className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-sm flex items-center justify-center"
                       style={{background: 'rgba(8,8,14,0.7)', border: '1px solid rgba(26,111,212,0.3)', color: '#1a6fd4'}}>
                       <ChevronLeft size={18} />
                     </button>
-                    <button onClick={() => setCurrentImg(p => (p + 1) % car.images.length)}
+                    <button onClick={() => setCurrentImg(p => (p + 1) % images.length)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-sm flex items-center justify-center"
                       style={{background: 'rgba(8,8,14,0.7)', border: '1px solid rgba(26,111,212,0.3)', color: '#1a6fd4'}}>
                       <ChevronRight size={18} />
@@ -52,9 +80,9 @@ export default function VenditaDetail({ params }: { params: { id: string } }) {
               </div>
 
               {/* Thumbnails */}
-              {car.images.length > 1 && (
+              {images.length > 1 && (
                 <div className="flex gap-2 mb-8">
-                  {car.images.map((img, i) => (
+                  {images.map((img: string, i: number) => (
                     <button key={i} onClick={() => setCurrentImg(i)}
                       className="flex-1 rounded-sm overflow-hidden transition-all"
                       style={{

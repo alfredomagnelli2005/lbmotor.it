@@ -100,20 +100,6 @@ export const CARS_VENDITA: Car[] = [
   },
 ]
 
-// ============================================================
-// AUTH — UTENTI ADMIN
-// ============================================================
-// TODO: Sostituire con autenticazione reale (NextAuth.js + DB)
-// Esempio:
-//   import NextAuth from 'next-auth'
-//   import CredentialsProvider from 'next-auth/providers/credentials'
-//   // Configurare authOptions con verifica hash password nel DB
-// ============================================================
-export const ADMIN_CREDENTIALS = {
-  username: 'admin',
-  password: 'lbmotors2024', // TODO: hashare con bcrypt nel DB reale
-}
-
 export const PAYMENT_CONFIG = {
   depositoPercentuale: 30,  // percentuale acconto
   currency: 'EUR',

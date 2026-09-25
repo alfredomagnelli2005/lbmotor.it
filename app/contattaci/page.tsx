@@ -3,17 +3,34 @@ import { useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { COMPANY_INFO } from '@/lib/data'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { Phone, Mail, MapPin, Clock, MessageCircle, Send, CheckCircle } from 'lucide-react'
 
 export default function Contattaci() {
+  const supabase = createSupabaseBrowserClient()
   const [form, setForm] = useState({nome:'', email:'', telefono:'', oggetto:'', messaggio:''})
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Integrare invio email (es. Nodemailer, Resend, o EmailJS)
-    // await fetch('/api/contact', { method:'POST', body: JSON.stringify(form) })
-    setSent(true)
+    setSending(true)
+    setError('')
+    const cognome = (e.currentTarget as HTMLFormElement).elements.namedItem('cognome') as HTMLInputElement
+    try {
+      const { error: insertError } = await supabase.from('messaggi').insert({
+        nome: [form.nome.trim(), cognome.value.trim()].filter(Boolean).join(' '),
+        email: form.email.trim(), telefono: form.telefono.trim() || null,
+        oggetto: form.oggetto, messaggio: form.messaggio.trim(), letto: false,
+      })
+      if (insertError) throw insertError
+      setSent(true)
+    } catch {
+      setError('Invio non riuscito. Riprova tra poco o contattaci telefonicamente.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -67,8 +84,7 @@ export default function Contattaci() {
                       </div>
                       <div>
                         <label className="text-xs uppercase tracking-widest mb-2 block" style={{color: '#8888aa', letterSpacing: '0.1em'}}>Cognome</label>
-                        <input type="text" className="input-dark" placeholder="Rossi"
-                          onChange={e => setForm(p => ({...p, nome: e.target.value}))} />
+                        <input name="cognome" type="text" className="input-dark" placeholder="Rossi" />
                       </div>
                     </div>
                     <div>
@@ -100,8 +116,9 @@ export default function Contattaci() {
                         placeholder="Descrivi la tua richiesta..."
                         onChange={e => setForm(p => ({...p, messaggio: e.target.value}))} />
                     </div>
-                    <button type="submit" className="btn-primary flex items-center gap-2 justify-center">
-                      <Send size={16} /> Invia Messaggio
+                    {error && <p role="alert" style={{color:'#ef4444'}}>{error}</p>}
+                    <button type="submit" disabled={sending} className="btn-primary flex items-center gap-2 justify-center">
+                      <Send size={16} /> {sending ? 'Invio in corso…' : 'Invia Messaggio'}
                     </button>
                     <p className="text-xs" style={{color: '#444460'}}>
                       * Campi obbligatori. I tuoi dati saranno trattati secondo la nostra Privacy Policy.

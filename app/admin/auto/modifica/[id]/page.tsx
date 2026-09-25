@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import NuovaAutoForm from '../../nuova/NuovaAutoForm'
 
 // 1. FORZIAMO LA PAGINA AD ESSERE DINAMICA (Essenziale su Vercel per le rotte con [id])
@@ -22,7 +23,13 @@ export default async function ModificaAutoPage({ params }: ModificaAutoPageProps
   }
 
   // 4. INIZIALIZZIAMO IL CLIENT DENTRO IL COMPONENTE (Solo quando la pagina viene effettivamente eseguita)
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  const cookieStore = cookies()
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: cookiesToSet => cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
+    },
+  })
 
   // 5. Interroghiamo la tabella 'cars' usando l'ID passato nell'URL
   const { data: auto, error } = await supabase
