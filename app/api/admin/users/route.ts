@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin
   const { data, error } = await context.admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: new URL('/admin/login', siteUrl).toString(),
+    redirectTo: new URL('/admin/login?mode=setup', siteUrl).toString(),
   })
   if (error || !data.user) {
     return NextResponse.json({ error: error?.message || 'Invito non riuscito.' }, { status: 400 })

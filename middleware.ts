@@ -25,7 +25,8 @@ export async function middleware(request: NextRequest) {
   const role = user?.app_metadata?.role
   const isAdmin = role === 'admin' || role === 'owner'
   if (request.nextUrl.pathname === '/admin/login') {
-    if (isAdmin) return NextResponse.redirect(new URL('/admin', request.url))
+    const isPasswordSetup = request.nextUrl.searchParams.get('mode') === 'setup'
+    if (isAdmin && !isPasswordSetup) return NextResponse.redirect(new URL('/admin', request.url))
     return response
   }
   if (!isAdmin) return NextResponse.redirect(new URL('/admin/login', request.url))
