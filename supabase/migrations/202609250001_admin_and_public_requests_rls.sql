@@ -24,7 +24,7 @@ returns boolean
 language sql
 stable
 as $$
-  select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', false);
+  select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') in ('admin', 'owner'), false);
 $$;
 
 drop policy if exists "Public can view cars" on public.cars;

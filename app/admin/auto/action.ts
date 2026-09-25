@@ -14,7 +14,7 @@ async function getSupabase() {
     },
   })
   const { data: { user } } = await supabase.auth.getUser()
-  if (user?.app_metadata?.role !== 'admin') throw new Error('Non autorizzato.')
+  if (!['admin', 'owner'].includes(user?.app_metadata?.role)) throw new Error('Non autorizzato.')
   return supabase
 }
 

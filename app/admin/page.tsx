@@ -1,20 +1,21 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import AdminUsersPanel from './AdminUsersPanel'
 import {
   Car as CarIcon, Plus, LogOut, CheckCircle, XCircle,
   Edit3, Trash2, DollarSign, Eye, BarChart2, Users,
   Package, Phone, Mail, Calendar, AlertTriangle,
-  TrendingUp, Clock, Star, MessageSquare, Bell, X
+  TrendingUp, Clock, Star, MessageSquare, Bell, X, ShieldCheck, Search, RefreshCw
 } from 'lucide-react'
 
 // ─── CONFIGURAZIONE SUPABASE LATO CLIENT ────────────────────
 const supabase = createSupabaseBrowserClient()
 
 // ─── TIPI ───────────────────────────────────────────────────
-type TabType = 'dashboard' | 'noleggio' | 'vendita' | 'aggiungi' | 'prenotazioni' | 'messaggi'
+type TabType = 'dashboard' | 'noleggio' | 'vendita' | 'aggiungi' | 'prenotazioni' | 'messaggi' | 'utenti'
 
 async function compressImage(file: File): Promise<string> {
   const bitmap = await createImageBitmap(file)
@@ -35,6 +36,14 @@ async function compressImage(file: File): Promise<string> {
 export default function AdminDashboard() {
   const router = useRouter()
   const [tab, setTab] = useState<TabType>('dashboard')
+  const [isOwner, setIsOwner] = useState(false)
+  const [messageQuery, setMessageQuery] = useState('')
+  const [messageFilter, setMessageFilter] = useState<'tutti' | 'non-letti'>('tutti')
+  const [bookingQuery, setBookingQuery] = useState('')
+  const [bookingFilter, setBookingFilter] = useState<'tutti' | 'da-confermare' | 'pagate'>('tutti')
+  const [dataLoading, setDataLoading] = useState(true)
+  const [dataError, setDataError] = useState('')
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   // ─── STATI REALI ──────────────────────────────────────────
   const [carsNoleggio, setCarsNoleggio] = useState<any[]>([])
@@ -53,25 +62,35 @@ export default function AdminDashboard() {
   const [imageInputVersion, setImageInputVersion] = useState(0)
 
   // ─── CARICAMENTO DATI E REALTIME DA SUPABASE ─────────────────────────
-  useEffect(() => {
-    const fetchData = async () => {
-      // Carica Auto
-      const { data: cars } = await supabase.from('cars').select('*').order('created_at', { ascending: false })
-      if (cars) {
-        setCarsNoleggio(cars.filter((c: any) => c.type === 'noleggio'))
-        setCarsVendita(cars.filter((c: any) => c.type === 'vendita'))
+  const refreshDashboard = useCallback(async () => {
+    setDataLoading(true)
+    setDataError('')
+    try {
+      const [userResult, carsResult, bookingsResult, messagesResult] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.from('cars').select('*').order('created_at', { ascending: false }),
+        supabase.from('prenotazioni').select('*').order('created_at', { ascending: false }),
+        supabase.from('messaggi').select('*').order('created_at', { ascending: false }),
+      ])
+      setIsOwner(userResult.data.user?.app_metadata?.role === 'owner')
+      const errors = [carsResult.error, bookingsResult.error, messagesResult.error].filter(Boolean)
+      if (errors.length) setDataError(`Alcuni dati non sono stati caricati: ${errors.map(error => error?.message).join(' · ')}`)
+      if (carsResult.data) {
+        setCarsNoleggio(carsResult.data.filter((car: any) => car.type === 'noleggio'))
+        setCarsVendita(carsResult.data.filter((car: any) => car.type === 'vendita'))
       }
+      if (bookingsResult.data) setPrenotazioni(bookingsResult.data)
+      if (messagesResult.data) setMessaggi(messagesResult.data)
+      setLastUpdated(new Date())
+    } catch (error) {
+      setDataError(error instanceof Error ? error.message : 'Errore nel caricamento dei dati.')
+    } finally {
+      setDataLoading(false)
+    }
+  }, [])
 
-      // Carica Prenotazioni
-      const { data: preno } = await supabase.from('prenotazioni').select('*').order('created_at', { ascending: false })
-      if (preno) setPrenotazioni(preno)
-
-      // Carica Messaggi
-      const { data: msg } = await supabase.from('messaggi').select('*').order('created_at', { ascending: false })
-      if (msg) setMessaggi(msg)
-    };
-
-    fetchData();
+  useEffect(() => {
+    void refreshDashboard()
 
     // Ascolto in tempo reale per le prenotazioni
     const prenotazioniCanale = supabase
@@ -100,7 +119,7 @@ export default function AdminDashboard() {
       supabase.removeChannel(prenotazioniCanale);
       supabase.removeChannel(messaggiCanale);
     };
-  }, [router]);
+  }, [refreshDashboard]);
 
   const nonLetti = messaggi.filter(m => !m.letto).length
   const prenotazioniInAttesa = prenotazioni.filter(p => !p.pagato).length
@@ -238,7 +257,7 @@ export default function AdminDashboard() {
 
   // ─── COMPONENTE STAT CARD (Invariato) ───────────────────
   const StatCard = ({icon:Icon, label, val, sub, color, onClick}: any) => (
-    <div onClick={onClick} style={{...s.card, padding:'1.25rem', cursor: onClick ? 'pointer' : 'default'}}>
+    <div onClick={onClick} role={onClick ? 'button' : undefined} tabIndex={onClick ? 0 : undefined} onKeyDown={onClick ? e => { if (e.key === 'Enter' || e.key === ' ') onClick() } : undefined} className="admin-stat-card" style={{...s.card, padding:'1.25rem', cursor: onClick ? 'pointer' : 'default'}}>
       <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'1rem'}}>
         <div style={{width:40, height:40, borderRadius:'3px', display:'flex', alignItems:'center', justifyContent:'center', background:`${color}18`, border:`1px solid ${color}35`}}>
           <Icon size={18} color={color}/>
@@ -252,11 +271,25 @@ export default function AdminDashboard() {
     </div>
   )
 
+  const filteredMessages = messaggi.filter(message => {
+    const query = messageQuery.trim().toLocaleLowerCase('it-IT')
+    const matchesQuery = !query || [message.nome, message.email, message.oggetto, message.messaggio]
+      .some(value => String(value || '').toLocaleLowerCase('it-IT').includes(query))
+    return matchesQuery && (messageFilter === 'tutti' || !message.letto)
+  })
+  const filteredBookings = prenotazioni.filter(booking => {
+    const query = bookingQuery.trim().toLocaleLowerCase('it-IT')
+    const matchesQuery = !query || [booking.cliente, booking.email, booking.car_name, booking.telefono, booking.date_from]
+      .some(value => String(value || '').toLocaleLowerCase('it-IT').includes(query))
+    const matchesStatus = bookingFilter === 'tutti' || (bookingFilter === 'pagate' ? booking.pagato : !booking.pagato)
+    return matchesQuery && matchesStatus
+  })
+
   return (
-    <div style={{minHeight:'100vh', display:'flex', background:'#07070d', ...s.body}}>
+    <div className="admin-shell" style={{minHeight:'100vh', display:'flex', background:'#07070d', ...s.body}}>
 
       {/* ─── SIDEBAR ─────────────────────────────────────── */}
-      <aside style={{width:230, flexShrink:0, display:'flex', flexDirection:'column', background:'#0b0b16', borderRight:'1px solid rgba(255,255,255,0.05)', minHeight:'100vh'}}>
+      <aside className="admin-sidebar" style={{width:250, flexShrink:0, display:'flex', flexDirection:'column', background:'#0b0b16', borderRight:'1px solid rgba(255,255,255,0.05)', minHeight:'100vh'}}>
         <div style={{padding:'1.25rem 1rem', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
           <div style={{display:'flex', alignItems:'center', gap:10}}>
             <svg width="30" height="30" viewBox="0 0 36 36" fill="none">
@@ -278,7 +311,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <nav style={{padding:'0.75rem', display:'flex', flexDirection:'column', gap:2, flex:1}}>
+        <nav className="admin-nav" style={{padding:'0.75rem', display:'flex', flexDirection:'column', gap:2, flex:1}}>
           {[
             {id:'dashboard', label:'Dashboard', icon:BarChart2},
             {id:'noleggio', label:'Auto a Noleggio', icon:CarIcon},
@@ -286,8 +319,9 @@ export default function AdminDashboard() {
             {id:'prenotazioni', label:'Prenotazioni', icon:Calendar, badge: prenotazioniInAttesa},
             {id:'messaggi', label:'Messaggi', icon:MessageSquare, badge: nonLetti},
             {id:'aggiungi', label:'Aggiungi Auto', icon:Plus},
-          ].map(({id, label, icon:Icon, badge}) => (
-            <button key={id} onClick={() => setTab(id as TabType)} style={s.sideBtn(tab===id)}>
+            ...(isOwner ? [{id:'utenti', label:'Utenti Admin', icon:ShieldCheck}] : []),
+          ].map(({id, label, icon:Icon, badge}: any) => (
+            <button key={id} aria-current={tab === id ? 'page' : undefined} onClick={() => setTab(id as TabType)} style={s.sideBtn(tab===id)}>
               <Icon size={16} />
               <span style={{flex:1}}>{label}</span>
               {badge ? <span style={{background:'#ef4444', color:'white', borderRadius:'9999px', fontSize:'0.65rem', padding:'1px 7px', fontWeight:700}}>{badge}</span> : null}
@@ -306,7 +340,12 @@ export default function AdminDashboard() {
       </aside>
 
       {/* ─── MAIN ───────────────────────────────────────── */}
-      <main style={{flex:1, padding:'2rem 2.5rem', overflowY:'auto'}}>
+      <main className="admin-main" style={{flex:1, padding:'2rem 2.5rem', overflowY:'auto'}}>
+        <div className="admin-topbar">
+          <div><span className="admin-eyebrow">LB MOTORS · GESTIONALE</span><div className="admin-topbar-title">{({ dashboard: 'Panoramica', noleggio: 'Flotta noleggio', vendita: 'Auto in vendita', aggiungi: 'Nuovo veicolo', prenotazioni: 'Prenotazioni', messaggi: 'Centro messaggi', utenti: 'Utenti admin' } as Record<TabType, string>)[tab]}</div></div>
+          <div className="admin-topbar-actions"><span className="admin-live-dot" /> {lastUpdated ? `Aggiornato alle ${lastUpdated.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'})}` : 'Dati live'}<button className="admin-icon-button" type="button" onClick={() => void refreshDashboard()} disabled={dataLoading} aria-label="Aggiorna dati"><RefreshCw size={15} className={dataLoading ? 'admin-spin' : ''}/></button></div>
+        </div>
+        {dataError && <div className="admin-data-error" role="alert"><AlertTriangle size={16}/><span>{dataError}</span><button type="button" onClick={() => void refreshDashboard()}>Riprova</button></div>}
 
         {/* ════ DASHBOARD ════ */}
         {tab === 'dashboard' && (
@@ -316,14 +355,14 @@ export default function AdminDashboard() {
               <p style={{color:'#666680', fontSize:'0.875rem'}}>Ecco un riepilogo di tutto quello che succede in LB Motors oggi.</p>
             </div>
 
-            <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1rem', marginBottom:'2rem'}}>
+            <div className="admin-stats-grid" style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1rem', marginBottom:'2rem'}}>
               <StatCard icon={CarIcon} label="Auto disponibili ora" val={disponibili} color="#22c55e" onClick={() => setTab('noleggio')} sub={`di ${carsNoleggio.length} totali`}/>
               <StatCard icon={DollarSign} label="Incassato (acconti)" val={`€${incassoTotale}`} color="#1a6fd4" />
               <StatCard icon={Calendar} label="Prenotazioni in attesa" val={prenotazioniInAttesa} color="#f59e0b" onClick={() => setTab('prenotazioni')} sub="da confermare"/>
               <StatCard icon={MessageSquare} label="Nuovi messaggi" val={nonLetti} color="#60a5fa" onClick={() => setTab('messaggi')} sub="non letti"/>
             </div>
 
-            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.5rem'}}>
+            <div className="admin-panels-grid" style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.5rem'}}>
               <div style={{...s.card, padding:'1.5rem'}}>
                 <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.25rem'}}>
                   <h2 style={{...s.display, fontSize:'1.3rem', fontWeight:600}}>Ultime Prenotazioni</h2>
@@ -391,11 +430,11 @@ export default function AdminDashboard() {
             <h1 style={{...s.display, fontSize:'2rem', fontWeight:600, marginBottom:'0.5rem'}}>Auto a Noleggio</h1>
             <p style={{color:'#666680', fontSize:'0.875rem', marginBottom:'1.5rem'}}>Gestisci la disponibilità di ogni veicolo. Clicca il pulsante verde/rosso per cambiarla istantaneamente.</p>
             <div style={{...s.card, overflow:'hidden'}}>
-              <div style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr', padding:'12px 16px', borderBottom:'1px solid rgba(255,255,255,0.05)', fontSize:'0.68rem', color:'#444460', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase'}}>
+              <div className="admin-vehicle-header" style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr', padding:'12px 16px', borderBottom:'1px solid rgba(255,255,255,0.05)', fontSize:'0.68rem', color:'#444460', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase'}}>
                 <span>Auto</span><span>Prezzo/giorno</span><span>Anno</span><span>Disponibilità</span><span>Azioni</span>
               </div>
               {carsNoleggio.map((car, i) => (
-                <div key={car.id} style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr', alignItems:'center', padding:'14px 16px', borderBottom: i<carsNoleggio.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background:'rgba(255,255,255,0.01)'}}>
+                <div className="admin-vehicle-row admin-vehicle-rental" key={car.id} style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr', alignItems:'center', padding:'14px 16px', borderBottom: i<carsNoleggio.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background:'rgba(255,255,255,0.01)'}}>
                   <div style={{display:'flex', alignItems:'center', gap:10}}>
                     <img src={car.image} style={{width:48, height:36, objectFit:'cover', borderRadius:'2px'}} alt={car.model}/>
                     <div>
@@ -440,11 +479,11 @@ export default function AdminDashboard() {
             <h1 style={{...s.display, fontSize:'2rem', fontWeight:600, marginBottom:'0.5rem'}}>Auto in Vendita</h1>
             <p style={{color:'#666680', fontSize:'0.875rem', marginBottom:'1.5rem'}}>Gestisci gli annunci di vendita. Puoi aggiungere nuovi veicoli dal menu "Aggiungi Auto".</p>
             <div style={{...s.card, overflow:'hidden'}}>
-              <div style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr', padding:'12px 16px', borderBottom:'1px solid rgba(255,255,255,0.05)', fontSize:'0.68rem', color:'#444460', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase'}}>
+              <div className="admin-vehicle-header" style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr', padding:'12px 16px', borderBottom:'1px solid rgba(255,255,255,0.05)', fontSize:'0.68rem', color:'#444460', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase'}}>
                 <span>Auto</span><span>Prezzo</span><span>Anno</span><span>Chilometri</span><span>Azioni</span>
               </div>
               {carsVendita.map((car, i) => (
-                <div key={car.id} style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr', alignItems:'center', padding:'14px 16px', borderBottom: i<carsVendita.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background:'rgba(255,255,255,0.01)'}}>
+                <div className="admin-vehicle-row admin-vehicle-sale" key={car.id} style={{display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr 1fr', alignItems:'center', padding:'14px 16px', borderBottom: i<carsVendita.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background:'rgba(255,255,255,0.01)'}}>
                   <div style={{display:'flex', alignItems:'center', gap:10}}>
                     <img src={car.image} style={{width:48, height:36, objectFit:'cover', borderRadius:'2px'}} alt={car.model}/>
                     <div>
@@ -469,13 +508,21 @@ export default function AdminDashboard() {
   <div>
     <h1 style={{...s.display, fontSize:'2rem', fontWeight:600, marginBottom:'0.5rem'}}>Prenotazioni</h1>
     <p style={{color:'#666680', fontSize:'0.875rem', marginBottom:'1.5rem'}}>Tutte le prenotazioni ricevute con i dati del cliente e lo stato del pagamento.</p>
+    <div className="admin-message-toolbar">
+      <label className="admin-search"><Search size={16}/><input value={bookingQuery} onChange={event => setBookingQuery(event.target.value)} placeholder="Cerca cliente, auto, email" aria-label="Cerca prenotazioni" /></label>
+      <div className="admin-filter-pills" role="group" aria-label="Filtra prenotazioni">
+        <button className={bookingFilter === 'tutti' ? 'active' : ''} onClick={() => setBookingFilter('tutti')}>Tutte <span>{prenotazioni.length}</span></button>
+        <button className={bookingFilter === 'da-confermare' ? 'active' : ''} onClick={() => setBookingFilter('da-confermare')}>In attesa <span>{prenotazioniInAttesa}</span></button>
+        <button className={bookingFilter === 'pagate' ? 'active' : ''} onClick={() => setBookingFilter('pagate')}>Pagate <span>{prenotazioni.length - prenotazioniInAttesa}</span></button>
+      </div>
+    </div>
     <div style={{display:'flex', flexDirection:'column', gap:12}}>
-      {prenotazioni.length === 0 ? (
+      {filteredBookings.length === 0 ? (
         <div style={{...s.card, padding:'2rem', textAlign:'center', color:'#666680'}}>
-          Nessuna prenotazione trovata nel database di Supabase.
+          {prenotazioni.length === 0 ? 'Nessuna prenotazione trovata.' : 'Nessuna prenotazione corrisponde ai filtri.'}
         </div>
       ) : (
-        prenotazioni.map(p => {
+        filteredBookings.map(p => {
           // Mappatura flessibile dei campi per evitare che errori di maiuscole/minuscole nascondano i dati
           const clienteNome = p.cliente || p.clienteNome || p.nome || p.name || "Cliente Anonimo";
           const telefonoNum = p.telefono || p.phone || "N/D";
@@ -534,17 +581,24 @@ export default function AdminDashboard() {
 
         {/* ════ MESSAGGI ════ */}
         {tab === 'messaggi' && (
-          <div style={{display:'grid', gridTemplateColumns: selectedMsg ? '1fr 1.2fr' : '1fr', gap:'1.5rem'}}>
+          <div className={`admin-messages-layout ${selectedMsg ? 'has-selection' : ''}`} style={{display:'grid', gridTemplateColumns: selectedMsg ? '1fr 1.2fr' : '1fr', gap:'1.5rem'}}>
             <div>
               <h1 style={{...s.display, fontSize:'2rem', fontWeight:600, marginBottom:'0.5rem'}}>Messaggi</h1>
-              <p style={{color:'#666680', fontSize:'0.875rem', marginBottom:'1.5rem'}}>Messaggi ricevuti dal modulo contatti del sito.</p>
+              <div className="admin-message-toolbar">
+                <label className="admin-search"><Search size={16}/><input value={messageQuery} onChange={event => setMessageQuery(event.target.value)} placeholder="Cerca nome, email o messaggio" aria-label="Cerca messaggi" /></label>
+                <div className="admin-filter-pills" role="group" aria-label="Filtra messaggi">
+                  <button className={messageFilter === 'tutti' ? 'active' : ''} onClick={() => setMessageFilter('tutti')}>Tutti <span>{messaggi.length}</span></button>
+                  <button className={messageFilter === 'non-letti' ? 'active' : ''} onClick={() => setMessageFilter('non-letti')}>Da leggere <span>{nonLetti}</span></button>
+                </div>
+              </div>
               <div style={{display:'flex', flexDirection:'column', gap:8}}>
-                {messaggi.map(m => (
-                  <div key={m.id} onClick={() => { setSelectedMsg(m); markRead(m.id) }}
+                {filteredMessages.length === 0 ? <div className="admin-empty-state">{messaggi.length ? 'Nessun messaggio corrisponde ai filtri.' : 'Non hai ancora ricevuto messaggi dal sito.'}</div> : filteredMessages.map(m => (
+                  <div className="admin-message-card" role="button" tabIndex={0} key={m.id} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedMsg(m); if (!m.letto) void markRead(m.id) } }} onClick={() => { setSelectedMsg(m); if (!m.letto) void markRead(m.id) }} aria-pressed={selectedMsg?.id === m.id}
                     style={{
                       ...s.card, padding:'1rem 1.25rem', cursor:'pointer',
                       background: selectedMsg?.id===m.id ? 'rgba(26,111,212,0.06)' : m.letto ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.03)',
                       border: selectedMsg?.id===m.id ? '1px solid rgba(26,111,212,0.25)' : m.letto ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(26,111,212,0.12)',
+                      textAlign:'left', width:'100%', color:'inherit', fontFamily:'inherit',
                     }}>
                     <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'5px'}}>
                       <span style={{fontWeight: m.letto ? 500 : 700, fontSize:'0.88rem'}}>{m.nome}</span>
@@ -569,30 +623,32 @@ export default function AdminDashboard() {
                 <div style={{display:'flex', flexDirection:'column', gap:6, marginBottom:'1.25rem', padding:'1rem', background:'rgba(255,255,255,0.02)', borderRadius:'3px'}}>
                   <div style={{fontSize:'0.78rem', color:'#8888aa', display:'flex', alignItems:'center', gap:8}}><Users size={13}/> <strong style={{color:'#f0f0f5'}}>{selectedMsg.nome}</strong></div>
                   <div style={{fontSize:'0.78rem', color:'#8888aa', display:'flex', alignItems:'center', gap:8}}><Mail size={13}/> {selectedMsg.email}</div>
-                  <div style={{fontSize:'0.78rem', color:'#8888aa', display:'flex', alignItems:'center', gap:8}}><Phone size={13}/> {selectedMsg.telefono}</div>
+                  {selectedMsg.telefono && <div style={{fontSize:'0.78rem', color:'#8888aa', display:'flex', alignItems:'center', gap:8}}><Phone size={13}/> {selectedMsg.telefono}</div>}
                   <div style={{fontSize:'0.78rem', color:'#8888aa', display:'flex', alignItems:'center', gap:8}}><Calendar size={13}/> {new Date(selectedMsg.created_at || selectedMsg.data).toLocaleDateString()}</div>
                 </div>
                 <div style={{fontSize:'0.875rem', color:'#c0c0d0', lineHeight:1.8, marginBottom:'1.5rem', padding:'1rem', background:'rgba(255,255,255,0.02)', borderRadius:'3px', borderLeft:'3px solid rgba(26,111,212,0.4)'}}>
                   {selectedMsg.messaggio}
                 </div>
                 <div style={{display:'flex', flexDirection:'column', gap:8}}>
-                  <a href={`tel:${selectedMsg.telefono}`}
+                  {selectedMsg.telefono && <a href={`tel:${selectedMsg.telefono}`}
                     style={{display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'0.65rem', background:'rgba(26,111,212,0.08)', border:'1px solid rgba(26,111,212,0.25)', borderRadius:'2px', color:'#1a6fd4', fontSize:'0.82rem', fontWeight:600}}>
                     <Phone size={15}/> Chiama {selectedMsg.nome ? selectedMsg.nome.split(' ')[0] : 'Cliente'}
-                  </a>
+                  </a>}
                   <a href={`mailto:${selectedMsg.email}?subject=Re: ${selectedMsg.oggetto}`}
                     style={{display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'0.65rem', background:'rgba(37,99,235,0.08)', border:'1px solid rgba(37,99,235,0.2)', borderRadius:'2px', color:'#60a5fa', fontSize:'0.82rem', fontWeight:600}}>
                     <Mail size={15}/> Rispondi via email
                   </a>
-                  <a href={`https://wa.me/${selectedMsg.telefono?.replace(/\D/g,'')}?text=${encodeURIComponent(`Ciao ${selectedMsg.nome ? selectedMsg.nome.split(' ')[0] : ''}! Ti rispondo riguardo: "${selectedMsg.oggetto}".`)}`} target="_blank" rel="noopener noreferrer"
+                  {selectedMsg.telefono && <a href={`https://wa.me/${selectedMsg.telefono.replace(/\D/g,'')}?text=${encodeURIComponent(`Ciao ${selectedMsg.nome ? selectedMsg.nome.split(' ')[0] : ''}! Ti rispondo riguardo: "${selectedMsg.oggetto}".`)}`} target="_blank" rel="noopener noreferrer"
                     style={{display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'0.65rem', background:'rgba(37,211,102,0.08)', border:'1px solid rgba(37,211,102,0.2)', borderRadius:'2px', color:'#25d366', fontSize:'0.82rem', fontWeight:600}}>
                     Rispondi su WhatsApp
-                  </a>
+                  </a>}
                 </div>
               </div>
             )}
           </div>
         )}
+
+        {tab === 'utenti' && isOwner && <AdminUsersPanel />}
 
         {/* ════ AGGIUNGI AUTO ════ */}
         {tab === 'aggiungi' && (
